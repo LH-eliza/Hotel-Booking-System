@@ -1,9 +1,10 @@
 // src/components/Footer.tsx
 import Link from "next/link";
+import Image from "next/image";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-red-400 text-white py-6">
+    <footer className="bg-[#A7AACC] text-white py-6">
       <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-2 gap-8">
         <div>
           <h3 className="font-medium mb-4">Discover</h3>
@@ -61,20 +62,15 @@ const Footer: React.FC = () => {
 
       <div className="max-w-5xl mx-auto mt-8 pt-4 border-t border-white/20 flex justify-end px-4">
         <div className="flex items-center">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 36 36"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 18C14.5 14 17 12 22 18C26 23 10 26 12 18Z"
-              fill="white"
-              stroke="white"
+          <div>
+            <Image
+              src="/LogoWhite.svg"
+              alt="BookMyStay Logo"
+              width={143}
+              height={34}
+              priority
             />
-          </svg>
-          <span className="ml-2 font-medium">BookMyStay</span>
+          </div>
         </div>
       </div>
     </footer>

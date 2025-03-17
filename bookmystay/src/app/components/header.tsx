@@ -1,31 +1,31 @@
-// src/components/Header.tsx
+import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { Menu, X } from "lucide-react";
 
 const Header: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <header className="py-4 px-8 flex justify-between items-center border-b">
+    <header className="py-4 px-4 md:px-8 flex justify-between items-center border-b relative">
       <div className="flex items-center">
-        <div className="text-red-400 mr-2">
-          <svg
-            width="36"
-            height="36"
-            viewBox="0 0 36 36"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect width="36" height="36" rx="8" fill="#F87171" />
-            <path
-              d="M12 18C14.5 14 17 12 22 18C26 23 10 26 12 18Z"
-              fill="white"
-              stroke="white"
-            />
-          </svg>
+        <div>
+          <Image
+            src="/Logo.svg"
+            alt="BookMyStay Logo"
+            width={143}
+            height={34}
+            priority
+          />
         </div>
-        <Link href="/" className="font-medium text-gray-800">
-          BookMyStay
-        </Link>
       </div>
-      <nav className="flex items-center space-x-6">
+
+      {/* Desktop Navigation */}
+      <nav className="hidden md:flex items-center space-x-6">
         <Link href="/top-rated" className="text-gray-600 hover:text-gray-900">
           Top Rated
         </Link>
@@ -33,12 +33,50 @@ const Header: React.FC = () => {
           Locations
         </Link>
         <Link
-          href="/login"
-          className="bg-red-400 hover:bg-red-500 text-white px-5 py-2 rounded-md transition-colors"
+          href="/signup"
+          className="bg-[#A7AACC] hover:bg-[#464D9F] text-white px-5 py-2 rounded-md transition-colors"
         >
           Sign Up/Login
         </Link>
       </nav>
+
+      {/* Mobile Menu Button */}
+      <button
+        className="md:hidden text-gray-700 focus:outline-none"
+        onClick={toggleMenu}
+        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+      >
+        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Mobile Navigation */}
+      {isMenuOpen && (
+        <div className="absolute top-full left-0 right-0 bg-white border-b shadow-lg z-50 md:hidden">
+          <div className="flex flex-col p-4 space-y-4">
+            <Link
+              href="/top-rated"
+              className="text-gray-600 hover:text-gray-900 py-2"
+              onClick={toggleMenu}
+            >
+              Top Rated
+            </Link>
+            <Link
+              href="/locations"
+              className="text-gray-600 hover:text-gray-900 py-2"
+              onClick={toggleMenu}
+            >
+              Locations
+            </Link>
+            <Link
+              href="/signup"
+              className="bg-[#A7AACC] hover:bg-[#464D9F] text-white px-5 py-2 rounded-md transition-colors text-center"
+              onClick={toggleMenu}
+            >
+              Sign Up/Login
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
