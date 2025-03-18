@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   StarIcon,
   ArrowLeft,
@@ -14,10 +14,216 @@ import {
   Users,
 } from "lucide-react";
 
-import Header from "../components/header";
-import Footer from "../components/footer";
-import SimpleDatePicker from "../components/datepicker";
-import GuestSelector from "../components/guest";
+import Header from "../../components/header";
+import Footer from "../../components/footer";
+import SimpleDatePicker from "../../components/datepicker";
+import GuestSelector from "../../components/guest";
+
+// Mock data - in a real app, this would be fetched from an API
+const hotels = [
+  {
+    id: 1,
+    name: "The Business Inn",
+    location: "Ottawa",
+    breakfast: true,
+    refundable: true,
+    rating: 9.1,
+    ratingText: "Exceptional",
+    reviews: 3295,
+    originalPrice: 148,
+    discountPrice: 139,
+    tax: 21,
+    discount: 7,
+    image: "/api/placeholder/400/250",
+    images: [
+      "/api/placeholder/800/500",
+      "/api/placeholder/800/500",
+      "/api/placeholder/800/500",
+    ],
+    amenities: ["Free Wi-Fi", "Free Parking", "Breakfast", "Gym"],
+    hotelChain: "Independent",
+    starRating: 3,
+    roomCount: 125,
+    availableRooms: 42,
+    checkIn: "3:00 PM",
+    checkOut: "11:00 AM",
+    address: "180 MacLaren St, Ottawa, ON K2P 0L3",
+    email: "info@thebusinessinn.com",
+    phone: "+1 (613) 555-1234",
+    description:
+      "Located in downtown Ottawa, The Business Inn offers spacious suites with fully equipped kitchens and complimentary breakfast.",
+    policies: [
+      "Check-in time: 3:00 PM",
+      "Check-out time: 11:00 AM",
+      "Cancellation: Free cancellation up to 24 hours before check-in",
+      "Children: Children of all ages are welcome",
+      "Pets: Pets are not allowed",
+    ],
+    rooms: [
+      {
+        id: 101,
+        name: "Standard Studio Suite",
+        capacity: "Single",
+        price: 139,
+        size: "400 sq ft",
+        maxGuests: 2,
+        amenities: [
+          "Free Wi-Fi",
+          "TV",
+          "Air conditioning",
+          "Mini-fridge",
+          "Microwave",
+          "Kitchenette",
+        ],
+        bedType: "1 Queen Bed",
+        image: "/api/placeholder/400/250",
+        description:
+          "Comfortable suite with queen bed, work desk, and kitchenette.",
+        available: true,
+        view: "City View",
+        extendable: false,
+        issues: [],
+      },
+      {
+        id: 102,
+        name: "Deluxe One-Bedroom Suite",
+        capacity: "Double",
+        price: 169,
+        size: "550 sq ft",
+        maxGuests: 3,
+        amenities: [
+          "Free Wi-Fi",
+          "TV",
+          "Air conditioning",
+          "Full kitchen",
+          "Washer/Dryer",
+        ],
+        bedType: "1 Queen Bed + Sofa Bed",
+        image: "/api/placeholder/400/250",
+        description:
+          "Spacious suite with separate bedroom, living area, and full kitchen.",
+        available: true,
+        view: "City View",
+        extendable: true,
+        issues: [],
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Hilton Garden Inn",
+    location: "Ottawa Downtown",
+    breakfast: true,
+    refundable: true,
+    rating: 8.7,
+    ratingText: "Excellent",
+    reviews: 2157,
+    originalPrice: 189,
+    discountPrice: 169,
+    tax: 25,
+    discount: 20,
+    image: "/api/placeholder/400/250",
+    images: [
+      "/api/placeholder/800/500",
+      "/api/placeholder/800/500",
+      "/api/placeholder/800/500",
+    ],
+    amenities: ["Free Wi-Fi", "Breakfast", "Gym", "Swimming Pool", "Spa"],
+    hotelChain: "Hilton",
+    starRating: 4,
+    roomCount: 240,
+    availableRooms: 85,
+    checkIn: "3:00 PM",
+    checkOut: "12:00 PM",
+    address: "1400 Queen Elizabeth Dr, Ottawa, ON K1S 5Z7",
+    email: "reservations@hiltongarden-ottawa.com",
+    phone: "+1 (613) 555-0123",
+    description:
+      "Located in downtown Ottawa, this contemporary hotel is within walking distance to major attractions, shops, and restaurants.",
+    policies: [
+      "Check-in time: 3:00 PM",
+      "Check-out time: 12:00 PM",
+      "Cancellation: Free cancellation up to 24 hours before check-in",
+      "Children: Children of all ages are welcome",
+      "Pets: Pets are not allowed",
+    ],
+    rooms: [
+      {
+        id: 201,
+        name: "Standard King Room",
+        capacity: "Single",
+        price: 169,
+        size: "330 sq ft",
+        maxGuests: 2,
+        amenities: [
+          "Free Wi-Fi",
+          "TV",
+          "Air conditioning",
+          "Mini-fridge",
+          "Coffee maker",
+        ],
+        bedType: "1 King Bed",
+        image: "/api/placeholder/400/250",
+        description:
+          "Comfortable room with city view, work desk, and modern amenities.",
+        available: true,
+        view: "City View",
+        extendable: false,
+        issues: [],
+      },
+      {
+        id: 202,
+        name: "Double Queen Room",
+        capacity: "Double",
+        price: 189,
+        size: "400 sq ft",
+        maxGuests: 4,
+        amenities: [
+          "Free Wi-Fi",
+          "TV",
+          "Air conditioning",
+          "Mini-fridge",
+          "Coffee maker",
+        ],
+        bedType: "2 Queen Beds",
+        image: "/api/placeholder/400/250",
+        description:
+          "Spacious room with two queen beds, perfect for families or groups.",
+        available: true,
+        view: "City View",
+        extendable: true,
+        issues: [],
+      },
+      {
+        id: 203,
+        name: "Deluxe King Suite",
+        capacity: "Double",
+        price: 249,
+        discountPrice: 229,
+        size: "550 sq ft",
+        maxGuests: 3,
+        amenities: [
+          "Free Wi-Fi",
+          "TV",
+          "Air conditioning",
+          "Mini-fridge",
+          "Coffee maker",
+          "Sofa bed",
+          "Bathrobes",
+        ],
+        bedType: "1 King Bed + Sofa Bed",
+        image: "/api/placeholder/400/250",
+        description:
+          "Luxurious suite with separate living area and panoramic views.",
+        available: true,
+        view: "Mountain View",
+        extendable: true,
+        issues: [],
+      },
+    ],
+  },
+  // Add more hotels as needed
+];
 
 interface DateRange {
   startDate: string;
@@ -25,71 +231,22 @@ interface DateRange {
 }
 
 interface GuestData {
-  rooms: Room[];
+  rooms: {
+    id: number;
+    name: string;
+    adults: number;
+    children: number;
+  }[];
   displayText: string;
-}
-
-interface Room {
-  id: number;
-  name: string;
-  adults: number;
-  children: number;
-}
-
-interface HotelRoom {
-  id: number;
-  name: string;
-  capacity: string;
-  price: number;
-  discountPrice?: number;
-  size: string;
-  maxGuests: number;
-  amenities: string[];
-  bedType: string;
-  image: string;
-  description: string;
-  available: boolean;
-  view: string;
-  extendable: boolean;
-  issues: string[];
-}
-
-interface Hotel {
-  id: number;
-  name: string;
-  location: string;
-  address: string;
-  description: string;
-  breakfast: boolean;
-  refundable: boolean;
-  rating: number;
-  ratingText: string;
-  reviews: number;
-  originalPrice: number;
-  discountPrice: number;
-  tax: number;
-  discount: number;
-  image: string;
-  images: string[];
-  amenities: string[];
-  hotelChain: string;
-  starRating: number;
-  roomCount: number;
-  availableRooms: number;
-  checkIn: string;
-  checkOut: string;
-  email: string;
-  phone: string;
-  policies: string[];
-  rooms: HotelRoom[];
 }
 
 export default function HotelDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const hotelId = params?.id;
+  const searchParams = useSearchParams();
+  const hotelId = typeof params.id === "string" ? parseInt(params.id) : -1;
 
-  const [hotel, setHotel] = useState<Hotel | null>(null);
+  const [hotel, setHotel] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [dateRange, setDateRange] = useState<string>("03-05-2025 | 03-06-2025");
@@ -97,194 +254,35 @@ export default function HotelDetailPage() {
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [openGuestSelector, setOpenGuestSelector] = useState(false);
   const [selectedTab, setSelectedTab] = useState("rooms");
-  const [filteredRooms, setFilteredRooms] = useState<HotelRoom[]>([]);
+  const [filteredRooms, setFilteredRooms] = useState<any[]>([]);
   const [priceSort, setPriceSort] = useState<"asc" | "desc" | null>(null);
   const [selectedRoomIds, setSelectedRoomIds] = useState<number[]>([]);
 
-  // This would typically be fetched based on the hotel ID
+  // Get the initial tab from query param if available
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["rooms", "details", "amenities", "policies"].includes(tab)) {
+      setSelectedTab(tab);
+    }
+  }, [searchParams]);
+
+  // Fetch hotel data based on ID
   useEffect(() => {
     // Simulating API call to fetch hotel details
     setTimeout(() => {
-      const hotelData: Hotel = {
-        id: 1,
-        name: "Hilton Garden Inn",
-        location: "Ottawa Downtown",
-        address: "1400 Queen Elizabeth Dr, Ottawa, ON K1S 5Z7",
-        description:
-          "Located in downtown Ottawa, this contemporary hotel is within walking distance to major attractions, shops, and restaurants. Enjoy modern rooms, a fitness center, and on-site dining options.",
-        breakfast: true,
-        refundable: true,
-        rating: 8.7,
-        ratingText: "Excellent",
-        reviews: 2157,
-        originalPrice: 189,
-        discountPrice: 169,
-        tax: 25,
-        discount: 20,
-        image: "/api/placeholder/800/500",
-        images: [
-          "/api/placeholder/800/500",
-          "/api/placeholder/800/500",
-          "/api/placeholder/800/500",
-          "/api/placeholder/800/500",
-        ],
-        amenities: [
-          "Free Wi-Fi",
-          "Breakfast",
-          "Gym",
-          "Swimming Pool",
-          "Spa",
-          "Business Center",
-          "Conference Rooms",
-          "Restaurant",
-          "Bar/Lounge",
-          "Room Service",
-          "Laundry Service",
-          "Concierge",
-        ],
-        hotelChain: "Hilton",
-        starRating: 4,
-        roomCount: 240,
-        availableRooms: 85,
-        checkIn: "3:00 PM",
-        checkOut: "11:00 AM",
-        email: "reservations@hiltongarden-ottawa.com",
-        phone: "+1 (613) 555-0123",
-        policies: [
-          "Check-in time: 3:00 PM",
-          "Check-out time: 11:00 AM",
-          "Cancellation: Free cancellation up to 24 hours before check-in",
-          "Children: Children of all ages are welcome",
-          "Pets: Pets are not allowed",
-        ],
-        rooms: [
-          {
-            id: 101,
-            name: "Standard King Room",
-            capacity: "Single",
-            price: 169,
-            size: "330 sq ft",
-            maxGuests: 2,
-            amenities: [
-              "Free Wi-Fi",
-              "TV",
-              "Air conditioning",
-              "Mini-fridge",
-              "Coffee maker",
-            ],
-            bedType: "1 King Bed",
-            image: "/api/placeholder/400/250",
-            description:
-              "Comfortable room with city view, work desk, and modern amenities.",
-            available: true,
-            view: "City View",
-            extendable: false,
-            issues: [],
-          },
-          {
-            id: 102,
-            name: "Double Queen Room",
-            capacity: "Double",
-            price: 189,
-            size: "400 sq ft",
-            maxGuests: 4,
-            amenities: [
-              "Free Wi-Fi",
-              "TV",
-              "Air conditioning",
-              "Mini-fridge",
-              "Coffee maker",
-            ],
-            bedType: "2 Queen Beds",
-            image: "/api/placeholder/400/250",
-            description:
-              "Spacious room with two queen beds, perfect for families or groups.",
-            available: true,
-            view: "City View",
-            extendable: true,
-            issues: [],
-          },
-          {
-            id: 103,
-            name: "Deluxe King Suite",
-            capacity: "Double",
-            price: 249,
-            discountPrice: 229,
-            size: "550 sq ft",
-            maxGuests: 3,
-            amenities: [
-              "Free Wi-Fi",
-              "TV",
-              "Air conditioning",
-              "Mini-fridge",
-              "Coffee maker",
-              "Sofa bed",
-              "Bathrobes",
-            ],
-            bedType: "1 King Bed + Sofa Bed",
-            image: "/api/placeholder/400/250",
-            description:
-              "Luxurious suite with separate living area and panoramic views.",
-            available: true,
-            view: "Mountain View",
-            extendable: true,
-            issues: [],
-          },
-          {
-            id: 104,
-            name: "Executive Suite",
-            capacity: "Double",
-            price: 329,
-            discountPrice: 299,
-            size: "650 sq ft",
-            maxGuests: 4,
-            amenities: [
-              "Free Wi-Fi",
-              "TV",
-              "Air conditioning",
-              "Mini-fridge",
-              "Coffee maker",
-              "Sofa bed",
-              "Bathrobes",
-              "Kitchenette",
-            ],
-            bedType: "1 King Bed + Sofa Bed",
-            image: "/api/placeholder/400/250",
-            description:
-              "Premium suite with separate bedroom, living room, and executive amenities.",
-            available: true,
-            view: "Sea View",
-            extendable: true,
-            issues: [],
-          },
-          {
-            id: 105,
-            name: "Standard Double Room",
-            capacity: "Double",
-            price: 159,
-            size: "340 sq ft",
-            maxGuests: 2,
-            amenities: ["Free Wi-Fi", "TV", "Air conditioning", "Mini-fridge"],
-            bedType: "1 Double Bed",
-            image: "/api/placeholder/400/250",
-            description:
-              "Cozy room with all essential amenities for a comfortable stay.",
-            available: false,
-            view: "City View",
-            extendable: false,
-            issues: ["Damaged TV remote", "Leaking faucet"],
-          },
-        ],
-      };
+      const foundHotel = hotels.find((h) => h.id === hotelId);
 
-      setHotel(hotelData);
-      setFilteredRooms(hotelData.rooms);
+      if (foundHotel) {
+        setHotel(foundHotel);
+        setFilteredRooms(foundHotel.rooms);
+      }
+
       setLoading(false);
     }, 500);
   }, [hotelId]);
 
   useEffect(() => {
-    if (hotel) {
+    if (hotel && hotel.rooms) {
       let rooms = [...hotel.rooms];
 
       // Apply price sorting if selected
@@ -324,7 +322,7 @@ export default function HotelDetailPage() {
     if (!hotel) return 0;
 
     return selectedRoomIds.reduce((total, roomId) => {
-      const room = hotel.rooms.find((r) => r.id === roomId);
+      const room = hotel.rooms.find((r: any) => r.id === roomId);
       if (room) {
         return total + (room.discountPrice || room.price);
       }
@@ -338,11 +336,21 @@ export default function HotelDetailPage() {
       return;
     }
 
-    console.log("Booking rooms:", selectedRoomIds);
     router.push(
       `/confirmation?hotelId=${hotelId}&roomIds=${selectedRoomIds.join(
         ","
-      )}&dates=${dateRange}&guests=${guests}`
+      )}&dates=${encodeURIComponent(dateRange)}&guests=${encodeURIComponent(
+        guests
+      )}`
+    );
+  };
+
+  // Navigate to room detail page
+  const navigateToRoomDetail = (roomId: number) => {
+    router.push(
+      `/hotels/${hotelId}/rooms/${roomId}?dates=${encodeURIComponent(
+        dateRange
+      )}&guests=${encodeURIComponent(guests)}`
     );
   };
 
@@ -429,13 +437,13 @@ export default function HotelDetailPage() {
         <div className="mb-8">
           <div className="relative h-96 rounded-xl overflow-hidden">
             <img
-              src={hotel.images[activeImageIndex]}
+              src={hotel.images[activeImageIndex] || hotel.image}
               alt={hotel.name}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex mt-2 space-x-2 overflow-x-auto pb-2">
-            {hotel.images.map((image, index) => (
+            {hotel.images.map((image: string, index: number) => (
               <div
                 key={index}
                 className={`flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden cursor-pointer border-2 ${
@@ -641,7 +649,10 @@ export default function HotelDetailPage() {
                   }`}
                 >
                   <div className="flex flex-col md:flex-row">
-                    <div className="md:w-1/4 h-48 md:h-auto">
+                    <div
+                      className="md:w-1/4 h-48 md:h-auto cursor-pointer"
+                      onClick={() => navigateToRoomDetail(room.id)}
+                    >
                       <img
                         src={room.image}
                         alt={room.name}
@@ -649,7 +660,10 @@ export default function HotelDetailPage() {
                       />
                     </div>
                     <div className="p-6 md:w-3/4 flex flex-col md:flex-row justify-between">
-                      <div className="md:w-2/3">
+                      <div
+                        className="md:w-2/3 cursor-pointer"
+                        onClick={() => navigateToRoomDetail(room.id)}
+                      >
                         <h3 className="text-xl font-bold">{room.name}</h3>
                         <div className="flex items-center mt-1 text-sm text-gray-600">
                           <span className="mr-4">{room.bedType}</span>
@@ -677,21 +691,23 @@ export default function HotelDetailPage() {
                             Amenities:
                           </div>
                           <div className="flex flex-wrap gap-1">
-                            {room.amenities.slice(0, 4).map((amenity, i) => (
-                              <span
-                                key={i}
-                                className="inline-flex items-center text-xs text-gray-600"
-                              >
-                                <Check
-                                  size={12}
-                                  className="text-green-500 mr-1"
-                                />
-                                {amenity}
-                                {i < room.amenities.length - 1 && i < 3 && (
-                                  <span className="mx-1">•</span>
-                                )}
-                              </span>
-                            ))}
+                            {room.amenities
+                              .slice(0, 4)
+                              .map((amenity: string, i: number) => (
+                                <span
+                                  key={i}
+                                  className="inline-flex items-center text-xs text-gray-600"
+                                >
+                                  <Check
+                                    size={12}
+                                    className="text-green-500 mr-1"
+                                  />
+                                  {amenity}
+                                  {i < room.amenities.length - 1 && i < 3 && (
+                                    <span className="mx-1">•</span>
+                                  )}
+                                </span>
+                              ))}
                             {room.amenities.length > 4 && (
                               <span className="text-xs text-purple-600">
                                 +{room.amenities.length - 4} more
@@ -700,14 +716,14 @@ export default function HotelDetailPage() {
                           </div>
                         </div>
 
-                        {room.issues.length > 0 && (
+                        {room.issues && room.issues.length > 0 && (
                           <div className="mt-3">
                             <div className="text-sm font-medium text-red-600 flex items-center">
                               <Info size={14} className="mr-1" />
                               Issues:
                             </div>
                             <ul className="text-xs text-red-600 list-disc list-inside">
-                              {room.issues.map((issue, i) => (
+                              {room.issues.map((issue: string, i: number) => (
                                 <li key={i}>{issue}</li>
                               ))}
                             </ul>
@@ -717,11 +733,12 @@ export default function HotelDetailPage() {
 
                       <div className="md:w-1/3 mt-4 md:mt-0 flex flex-col items-end justify-between">
                         <div className="text-right">
-                          {room.discountPrice && (
-                            <span className="text-gray-500 line-through text-sm">
-                              ${room.price}
-                            </span>
-                          )}
+                          {room.discountPrice &&
+                            room.price !== room.discountPrice && (
+                              <span className="text-gray-500 line-through text-sm">
+                                ${room.price}
+                              </span>
+                            )}
                           <div className="text-2xl font-bold text-gray-800">
                             ${room.discountPrice || room.price}
                             <span className="text-sm font-normal text-gray-500">
@@ -731,24 +748,34 @@ export default function HotelDetailPage() {
                         </div>
 
                         <div className="mt-4">
-                          {room.available ? (
-                            <button
-                              onClick={() => toggleRoomSelection(room.id)}
-                              className={`px-6 py-2 rounded font-medium ${
-                                selectedRoomIds.includes(room.id)
-                                  ? "bg-purple-500 text-white"
-                                  : "border border-purple-500 text-purple-500 hover:bg-purple-50"
-                              }`}
-                            >
-                              {selectedRoomIds.includes(room.id)
-                                ? "Selected"
-                                : "Select Room"}
-                            </button>
-                          ) : (
-                            <div className="text-red-600 font-medium text-center">
-                              Not Available
-                            </div>
-                          )}
+                          <div className="flex flex-col space-y-2">
+                            {room.available ? (
+                              <>
+                                <button
+                                  onClick={() => toggleRoomSelection(room.id)}
+                                  className={`px-6 py-2 rounded font-medium ${
+                                    selectedRoomIds.includes(room.id)
+                                      ? "bg-purple-500 text-white"
+                                      : "border border-purple-500 text-purple-500 hover:bg-purple-50"
+                                  }`}
+                                >
+                                  {selectedRoomIds.includes(room.id)
+                                    ? "Selected"
+                                    : "Select Room"}
+                                </button>
+                                <button
+                                  onClick={() => navigateToRoomDetail(room.id)}
+                                  className="px-6 py-2 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-medium"
+                                >
+                                  View Details
+                                </button>
+                              </>
+                            ) : (
+                              <div className="text-red-600 font-medium text-center">
+                                Not Available
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -841,7 +868,7 @@ export default function HotelDetailPage() {
                 Hotel Amenities
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4">
-                {hotel.amenities.map((amenity, index) => (
+                {hotel.amenities.map((amenity: string, index: number) => (
                   <div key={index} className="flex items-center">
                     <Check size={18} className="text-green-500 mr-2" />
                     <span>{amenity}</span>
@@ -859,7 +886,7 @@ export default function HotelDetailPage() {
               </h2>
               <div className="bg-gray-50 rounded-lg p-6">
                 <ul className="space-y-4">
-                  {hotel.policies.map((policy, index) => (
+                  {hotel.policies.map((policy: string, index: number) => (
                     <li key={index} className="flex items-start">
                       <Info
                         size={18}

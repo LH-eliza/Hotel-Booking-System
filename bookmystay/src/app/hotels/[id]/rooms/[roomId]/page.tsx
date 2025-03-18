@@ -4,12 +4,78 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { User, CreditCard, Check } from "lucide-react";
 
-import Header from "../components/header";
-import Footer from "../components/footer";
-import GuestInformationStep from "../components/booking/guest-information-step";
-import PaymentStep from "../components/booking/payment-step";
-import ConfirmationStep from "../components/booking/confirmation-step";
-import BookingSummary from "../components/booking/booking-summary";
+import Header from "../../../../components/header";
+import Footer from "../../../../components/footer";
+import GuestInformationStep from "../../../../components/booking/guest-information-step";
+import PaymentStep from "../../../../components/booking/payment-step";
+import ConfirmationStep from "../../../../components/booking/confirmation-step";
+import BookingSummary from "../../../../components/booking/booking-summary";
+
+// Mock data - in a real app, this would be fetched from an API
+const hotels = [
+  {
+    id: 1,
+    name: "The Business Inn",
+    location: "Ottawa",
+    address: "180 MacLaren St, Ottawa, ON K2P 0L3",
+    image: "/api/placeholder/400/250",
+    starRating: 3,
+    hotelChain: "Independent",
+    checkInTime: "3:00 PM",
+    checkOutTime: "11:00 AM",
+    rooms: [
+      {
+        id: 101,
+        name: "Standard Studio Suite",
+        capacity: "Single",
+        price: 139,
+        image: "/api/placeholder/400/250",
+      },
+      {
+        id: 102,
+        name: "Deluxe One-Bedroom Suite",
+        capacity: "Double",
+        price: 169,
+        image: "/api/placeholder/400/250",
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Hilton Garden Inn",
+    location: "Ottawa Downtown",
+    address: "1400 Queen Elizabeth Dr, Ottawa, ON K1S 5Z7",
+    image: "/api/placeholder/400/250",
+    starRating: 4,
+    hotelChain: "Hilton",
+    checkInTime: "3:00 PM",
+    checkOutTime: "12:00 PM",
+    rooms: [
+      {
+        id: 201,
+        name: "Standard King Room",
+        capacity: "Single",
+        price: 169,
+        image: "/api/placeholder/400/250",
+      },
+      {
+        id: 202,
+        name: "Double Queen Room",
+        capacity: "Double",
+        price: 189,
+        image: "/api/placeholder/400/250",
+      },
+      {
+        id: 203,
+        name: "Deluxe King Suite",
+        capacity: "Double",
+        price: 249,
+        discountPrice: 229,
+        image: "/api/placeholder/400/250",
+      },
+    ],
+  },
+];
 
 export interface DateRange {
   startDate: string;
@@ -22,6 +88,7 @@ export interface Room {
   price: number;
   discountPrice?: number;
   image: string;
+  capacity?: string;
 }
 
 export interface Hotel {
@@ -33,6 +100,7 @@ export interface Hotel {
   hotelChain: string;
   checkInTime?: string;
   checkOutTime?: string;
+  rooms?: Room[];
 }
 
 export interface BookingDetails {
@@ -110,58 +178,47 @@ export default function BookingConfirmationPage() {
     const guests = searchParams?.get("guests") || "";
 
     // This would typically be an API call to fetch hotel and room details
-    // Simulating API call with mock data
     setTimeout(() => {
-      const hotelData: Hotel = {
-        id: 1,
-        name: "Hilton Garden Inn",
-        address: "1400 Queen Elizabeth Dr, Ottawa, ON K1S 5Z7",
-        image: "/api/placeholder/400/250",
-        starRating: 4,
-        hotelChain: "Hilton",
-        checkInTime: "3:00 PM",
-        checkOutTime: "11:00 AM",
-      };
+      // Find hotel
+      const hotelIdNum = hotelId ? parseInt(hotelId) : -1;
+      const foundHotel = hotels.find((h) => h.id === hotelIdNum);
 
-      const roomsData: Room[] = [
-        {
-          id: 101,
-          name: "Standard King Room",
-          price: 169,
-          image: "/api/placeholder/400/250",
-        },
-        {
-          id: 102,
-          name: "Double Queen Room",
-          price: 189,
-          image: "/api/placeholder/400/250",
-        },
-      ];
+      if (foundHotel) {
+        // Find rooms
+        const selectedRooms = foundHotel.rooms
+          ? foundHotel.rooms.filter((room) =>
+              roomIds.includes(room.id.toString())
+            )
+          : [];
 
-      // Filter rooms based on roomIds from URL
-      const selectedRooms =
-        roomIds.length > 0
-          ? roomsData.filter((room) => roomIds.includes(room.id.toString()))
-          : roomsData.slice(0, 1); // Default to first room if none specified
+        // Calculate number of nights
+        let numberOfNights = 1;
+        const dateParts = dates.split(" | ");
+        if (dateParts.length === 2) {
+          const startDate = new Date(dateParts[0]);
+          const endDate = new Date(dateParts[1]);
+          const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          numberOfNights = diffDays || 1;
+        }
 
-      // Calculate number of nights
-      let numberOfNights = 1;
-      const dateParts = dates.split(" | ");
-      if (dateParts.length === 2) {
-        const startDate = new Date(dateParts[0]);
-        const endDate = new Date(dateParts[1]);
-        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        numberOfNights = diffDays || 1;
+        setBookingDetails({
+          hotel: {
+            id: foundHotel.id,
+            name: foundHotel.name,
+            address: foundHotel.address,
+            image: foundHotel.image,
+            starRating: foundHotel.starRating,
+            hotelChain: foundHotel.hotelChain,
+            checkInTime: foundHotel.checkInTime,
+            checkOutTime: foundHotel.checkOutTime,
+          },
+          rooms: selectedRooms,
+          dateRange: dates,
+          guestInfo: guests,
+          numberOfNights,
+        });
       }
-
-      setBookingDetails({
-        hotel: hotelData,
-        rooms: selectedRooms,
-        dateRange: dates,
-        guestInfo: guests,
-        numberOfNights,
-      });
 
       setLoading(false);
     }, 500);
@@ -169,7 +226,6 @@ export default function BookingConfirmationPage() {
 
   const goToNextStep = () => {
     if (currentStep === 2) {
-      // Generate booking number and date when moving to confirmation step
       const bookingNum = `BK${Math.floor(Math.random() * 9000000) + 1000000}`;
       const today = new Date().toISOString().split("T")[0];
 

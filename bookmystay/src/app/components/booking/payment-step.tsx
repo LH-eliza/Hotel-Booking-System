@@ -1,7 +1,5 @@
 import React from "react";
 import { ArrowLeft, ArrowRight, Shield, Info } from "lucide-react";
-
-// Fix the import path for interfaces
 interface PaymentInfo {
   method: string;
   cardNumber?: string;
@@ -24,10 +22,8 @@ export default function PaymentStep({
   onBack,
 }: PaymentStepProps) {
   const formatCardNumber = (value: string) => {
-    // Remove all non-digits
     const digits = value.replace(/\D/g, "");
 
-    // Split into groups of 4 and join with spaces
     const formatted = digits.match(/.{1,4}/g)?.join(" ") || digits;
 
     return formatted;
@@ -35,7 +31,6 @@ export default function PaymentStep({
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Limit to 19 characters (16 digits + 3 spaces)
     if (value.length <= 19) {
       updatePaymentInfo({ cardNumber: formatCardNumber(value) });
     }
@@ -62,7 +57,6 @@ export default function PaymentStep({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate payment information if credit card is selected
     if (paymentInfo.method === "credit-card") {
       if (
         !paymentInfo.cardNumber ||

@@ -96,7 +96,6 @@ export default function HotelBookingPage(): React.ReactElement {
   });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  // This would typically be fetched based on the filters
   const hotels: Hotel[] = [
     {
       id: 1,
@@ -331,16 +330,13 @@ export default function HotelBookingPage(): React.ReactElement {
     setActiveFilters([]);
   };
 
-  // Function to navigate to hotel detail page
   const navigateToHotelDetail = (hotelId: number) => {
     router.push(`/hotels/${hotelId}`);
   };
 
-  // Function to sort hotels based on selected sort option
   const getSortedHotels = (): Hotel[] => {
     let sortedHotels = [...hotels];
 
-    // Apply filters
     if (starRating > 0) {
       sortedHotels = sortedHotels.filter(
         (hotel) => hotel.starRating === starRating
@@ -369,7 +365,6 @@ export default function HotelBookingPage(): React.ReactElement {
       );
     }
 
-    // Apply sort
     switch (sortBy) {
       case "Price: Low to High":
         sortedHotels.sort((a, b) => a.discountPrice - b.discountPrice);
@@ -384,7 +379,6 @@ export default function HotelBookingPage(): React.ReactElement {
         sortedHotels.sort((a, b) => b.availableRooms - a.availableRooms);
         break;
       default:
-        // "Recommended" or any other option keeps the default order
         break;
     }
 
@@ -1033,7 +1027,7 @@ export default function HotelBookingPage(): React.ReactElement {
                         <button
                           className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-200"
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent navigating to hotel detail
+                            e.stopPropagation();
                             console.log("View rooms for:", hotel.name);
                           }}
                         >
