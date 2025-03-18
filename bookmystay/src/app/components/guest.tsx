@@ -88,20 +88,17 @@ const GuestSelector: React.FC<GuestSelectorProps> = ({ onSelect }) => {
   };
 
   const handleDone = (e: React.MouseEvent): void => {
-    // Stop event propagation to prevent it from bubbling up
     e.stopPropagation();
 
     setIsOpen(false);
 
-    // Calculate total number of guests
     const totalAdults = rooms.reduce((sum, room) => sum + room.adults, 0);
     const totalChildren = rooms.reduce((sum, room) => sum + room.children, 0);
     const totalGuests = totalAdults + totalChildren;
 
-    // Format display text
     let displayText = `${totalGuests} Guest${totalGuests !== 1 ? "s" : ""}`;
     if (rooms.length > 1) {
-      displayText += ` · ${rooms.length} Rooms`;
+      displayText = `${totalGuests} Guests, ${rooms.length} Rooms`;
     }
 
     if (onSelect) {
@@ -110,7 +107,6 @@ const GuestSelector: React.FC<GuestSelectorProps> = ({ onSelect }) => {
   };
 
   const toggleDropdown = (e: React.MouseEvent): void => {
-    // Stop event propagation to prevent it from bubbling up
     e.stopPropagation();
     setIsOpen(!isOpen);
   };
@@ -119,7 +115,12 @@ const GuestSelector: React.FC<GuestSelectorProps> = ({ onSelect }) => {
     (sum, room) => sum + room.adults + room.children,
     0
   );
-  const displayText = totalGuests === 1 ? "1 Guest" : `${totalGuests} Guests`;
+
+  // Updated display text logic
+  let displayText = totalGuests === 1 ? "1 Guest" : `${totalGuests} Guests`;
+  if (rooms.length > 1) {
+    displayText = `${totalGuests} Guests, ${rooms.length} Rooms`;
+  }
 
   return (
     <div className="relative w-full">
@@ -135,7 +136,7 @@ const GuestSelector: React.FC<GuestSelectorProps> = ({ onSelect }) => {
       {isOpen && (
         <div
           className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-lg p-4 z-20 w-72"
-          onClick={(e) => e.stopPropagation()} // Prevent clicks inside from closing
+          onClick={(e) => e.stopPropagation()}
         >
           {rooms.map((room) => (
             <div key={room.id} className="mb-4">
