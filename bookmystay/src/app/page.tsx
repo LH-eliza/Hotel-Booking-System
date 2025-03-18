@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, ChevronDown, Menu } from "lucide-react";
 import Background from "./components/background";
 import SimpleDatePicker from "./components/datepicker";
@@ -53,6 +54,8 @@ const DESTINATIONS: string[] = [
 ];
 
 const HotelSearchPage: React.FC = () => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState<SearchFormData>({
     dates: null,
     hotel: "",
@@ -100,7 +103,18 @@ const HotelSearchPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    console.log("Search submitted:", formData);
+
+    // Construct query parameters from formData
+    const query = new URLSearchParams({
+      startDate: formData.dates?.startDate || "",
+      endDate: formData.dates?.endDate || "",
+      hotel: formData.hotel || "",
+      destination: formData.destination || "",
+      guests: JSON.stringify(formData.guests || {}),
+    }).toString();
+
+    // Navigate to the /booking page with query parameters
+    router.push(`/booking?${query}`);
   };
 
   return (
