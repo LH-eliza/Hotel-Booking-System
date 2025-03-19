@@ -265,36 +265,49 @@ const mockBookings: Booking[] = [
   },
 ];
 
-const mockRentings: Renting[] = [
-  {
-    id: 4001,
-    bookingId: 3001,
-    employeeId: 2002,
-    checkInDate: "2025-04-01",
-    status: "Checked In",
-    paymentStatus: "Paid",
-  },
-];
-
-// Available rooms data for View 1
-const mockAvailableRooms: AreaRooms[] = [
-  { area: "New York, NY", available: 45 },
-  { area: "Chicago, IL", available: 32 },
-  { area: "Los Angeles, CA", available: 27 },
-  { area: "Miami, FL", available: 38 },
-  { area: "Seattle, WA", available: 22 },
-];
-
-// Room capacity data for View 2
-const mockRoomCapacity: HotelCapacity[] = [
-  { hotel: "Luxury Stays Downtown", totalCapacity: 240 },
-  { hotel: "Luxury Stays Central Park", totalCapacity: 185 },
-  { hotel: "ComfortInn Lakeview", totalCapacity: 150 },
-];
-
 const AdminDashboard: React.FC = () => {
   const [hotelChains, setHotelChains] = useState([]);
+  const [nextChainID, setNextChainID] = useState("");
+  const [nextHotelID, setNextHotelID] = useState("");
+
+  // Create Chain
+  const [formCentralOfficeAddress, setFormCentralOfficeAddress] = useState("");
+
+  // Create Hotel
+  const [formHotelChain, setFormHotelChain] = useState("CH001");
+  const [formCategory, setFormCategory] = useState(1);
+  const [formAddress, setFormAddress] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+
+  // Create Room
+  const [formRoomID, setFormRoomID] = useState("");
+  const [formPrice, setFormPrice] = useState("");
+  const [formCapacity, setFormCapacity] = useState("SINGLE");
+  const [formView, setFormView] = useState("City View");
+  const [formExtendable, setFormExtendable] = useState(false);
+  const [formRoomHotel, setFormRoomHotel] = useState("HTL00100");
+
+  // Create Customer
+  const [formCustomerID, setFormCustomerID] = useState("");
+  const [formCustomerFirstName, setFormCustomerFirstName] = useState("");
+  const [formCustomerLastName, setFormCustomerLastName] = useState("");
+  const [formCustomerAddress, setFormCustomerAddress] = useState("");
+  const [formCustomerIDType, setFormCustomerIDType] = useState("DRIVING_LICENSE");
+  const [formCustomerIDNumber, setFormCustomerIDNumber] = useState("");
+  const date = new Date().toISOString();
+
+  // Create Employee
+  const [formSSN, setFormSSN] = useState("");
+  const [formHotelID, setFormHotelID] = useState("HTL00100");
+  const [formRole, setFormRole] = useState("Receptionist");
+  const [formEmployeeFirstName, setFormEmployeeFirstName] = useState("");
+  const [formEmployeeLastName, setFormEmployeeLastName] = useState("");
+  const [formEmployeeAddress, setFormEmployeeAddress] = useState("");
+
   const [rooms, setRooms] = useState([]);
+  const [rentings, setRentings] = useState([]);
+  const [managers, setManagers] = useState([]);
+  const [availableRooms, setAvailableRooms] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [bookingsList, setBookingsList] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -308,7 +321,39 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("hotelchains");
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showBookingModal, setShowBookingModal] = useState<boolean>(false);
+  const [hotelIDs, setHotelIDs] = useState([]);
   const [modalType, setModalType] = useState<string>("");
+  const [hotelIDList, setHotelIDList] = useState("");
+
+  const fetchHotelChainIDs = async () => {
+    try {
+      const response = await fetch('/api/hotel_chain');
+      if (response.ok) {
+        const data = await response.json();
+        setHotelIDs(data); // Store the hotel ids from the response
+      } else {
+        throw new Error('Failed to fetch hotel ids');
+      }
+    } catch (error) {
+      console.log(error.message)
+    }
+    }
+
+    const fetchHotelIds = async () => {
+      try {
+        const response = await fetch('/api/hotel_id');
+        if (response.ok) {
+          const data = await response.json();
+          setHotelIDList(data); // Store the hotel ids from the response
+        } else {
+          throw new Error('Failed to fetch hotel ids');
+        }
+      } catch (error) {
+        console.log(error.message)
+      }
+      }
+
+    
 
   const fetchHotelChainCount = async () => {
     try {
@@ -324,7 +369,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const fetchAvailableRooms = async () => {
+  const fetchAvailableRoomsPerArea = async () => {
     try {
       const response = await fetch("/api/getAvailableRoomsPerArea");  // Call the backend route
       if (response.ok) {
@@ -337,6 +382,99 @@ const AdminDashboard: React.FC = () => {
       console.log(error)
     }
   };
+
+  const fetchAvailableRooms = async () => {
+    const availRoomsQuery = `
+    select * from room where status = 'Available'
+  `;
+    try {
+      // Send the query to the backend via GET request
+      const response = await fetch(`/api/data?query=${encodeURIComponent(availRoomsQuery)}`);
+
+      if (response.ok) {
+        const jsonData = await response.json();
+        setAvailableRooms(jsonData);  // Store the data in state
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    } catch (error) {
+      console.log(error.message);  // Set the error message
+    }
+  }
+
+  const fetchFromDB = async (query) => {
+    try {
+      console.log(query)
+      const response = await fetch(`/api/data?query=${encodeURIComponent(query)}`);
+  
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      return data;  // Return the fetched data
+    } catch (error) {
+      console.error("Error:", error.message);
+      throw error;  // Rethrow the error for handling
+    }
+  };
+
+  const nextHotelChainId = async () => {
+    const query = `SELECT chain_id 
+    FROM hotelchain
+    ORDER BY CAST(SUBSTRING(chain_id FROM 3) AS INTEGER) DESC
+    LIMIT 1;
+    `;
+
+    try {
+      const result = await fetchFromDB(query);  // Use the reusable fetch function
+      if (result.length === 0) {
+        return "CH001";  // Default if no chains exist
+      }
+  
+      const lastChainID = result[0].chain_id;  // e.g., CH110
+      const numPart = parseInt(lastChainID.slice(2), 10);  // Extract numeric part -> 110
+      const nextNum = numPart + 1;  // Increment -> 111
+  
+      // Format the new ID with leading zeros
+      const nextChainID = `CH${String(nextNum).padStart(3, "0")}`;
+  
+      console.log(`Next Chain ID: ${nextChainID}`);
+      setNextChainID(nextChainID);  // Update the state  
+    } catch (error) {
+      console.error("Error generating next chain ID:", error.message);
+      throw error;
+    }
+  }
+
+  const nextHotelId = async () => {
+    const query = `SELECT hotel_id 
+    FROM hotel
+    ORDER BY CAST(SUBSTRING(hotel_id FROM 4) AS INTEGER) DESC
+    LIMIT 1;
+    `;
+
+    try {
+      const result = await fetchFromDB(query);  // Use the reusable fetch function
+      if (result.length === 0) {
+        return "HTL00001";  // Default if no hotels exist
+      }
+  
+      const lastHotelID = result[0].hotel_id;  // e.g., HTL00033
+      const numPart = parseInt(lastHotelID.slice(3), 10);  // Extract numeric part -> 110
+      const nextNum = numPart + 1;  // Increment -> 111
+  
+      // Format the new ID with leading zeros
+      const nextHotelID = `HTL${String(nextNum).padStart(5, "0")}`;
+  
+      console.log(`Next Hotel ID: ${nextHotelID}`);
+      setNextHotelID(nextHotelID);  // Update the state  
+    } catch (error) {
+      console.error("Error generating next Hotel ID:", error.message);
+      throw error;
+    }
+  }
+  
 
   const fetchHotelCapacity = async () => {
     try {
@@ -386,6 +524,214 @@ const AdminDashboard: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setHotelRecords(data);
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const runQuery = async (query, values = []) => {
+    try {
+      const response = await fetch('/api/runQuery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query, values })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to run query');
+      }
+  
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error("Error:", error);
+      throw error;
+    }
+  };
+
+  const handleNewCustomer = async () => {
+    if (!formCustomerID || !formCustomerFirstName || !formCustomerLastName || !formCustomerAddress || !formCustomerIDType || !formCustomerIDNumber) {
+      alert("Please fill in all fields");
+      console.log(formCustomerID, formCustomerFirstName, formCustomerLastName, formCustomerAddress, formCustomerIDType, formCustomerIDNumber)
+      return;
+    }
+  
+    const query = `
+    INSERT INTO customer (customer_id, first_name, last_name, address, id_type, id_number, registration_date)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+  `;
+    
+    const values = [formCustomerID, formCustomerFirstName, formCustomerLastName, formCustomerAddress, formCustomerIDType, formCustomerIDNumber, date];
+
+    try {
+      const result = await runQuery(query, values);
+      console.log("Added new customer:", result);
+      setShowAddModal(false);
+      fetchCustomers();
+      fetchCustomerCount();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleNewEmployee = async () => {
+    if (!formSSN || !formHotelID || !formRole || !formEmployeeFirstName || !formEmployeeLastName || !formEmployeeAddress) {
+      alert("Please fill in all fields");
+      return;
+    }
+  
+    const query = `
+    INSERT INTO customer (ssn, hotel_id, first_name, last_name, address, role)
+    VALUES ($1, $2, $3, $4, $5, $6)
+  `;
+    
+    const values = [formSSN, formHotelID, formEmployeeFirstName, formEmployeeLastName, formEmployeeAddress, formRole];
+
+    try {
+      const result = await runQuery(query, values);
+      console.log("Added new employee:", result);
+      setShowAddModal(false);
+      fetchEmployees();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleNewRoom = async () => {
+    if (!formRoomID || !formPrice || !formCapacity || !formView) {
+      alert("Please fill in all fields");
+      return;
+    }
+  
+    const query = `
+    INSERT INTO room (room_id, hotel_id, price, capacity, view, extendable, status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+  `;
+    
+    const values = [formRoomID, formRoomHotel, formPrice, formCapacity, formView, formExtendable, "Available"];
+
+    try {
+      const result = await runQuery(query, values);
+      console.log("Added new room:", result);
+      setShowAddModal(false);
+      fetchRooms();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleNewChain = async () => {
+    if (!formCentralOfficeAddress || !nextChainID) {
+      alert("Please fill in all fields");
+      return;
+    }
+  
+    const query = `
+    INSERT INTO hotelchain (chain_id, num_hotels, central_office_address)
+    VALUES ($1, $2, $3)
+  `;
+    
+    const values = [nextChainID, 1, formCentralOfficeAddress];
+
+    try {
+      const result = await runQuery(query, values);
+      console.log("Added hotel chain:", result);
+      setShowAddModal(false);
+      fetchHotelChains();
+      fetchHotelChainIDs();
+      fetchHotelIds();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleNewHotel = async () => {
+    if (!formAddress || !formCategory || !formEmail || !formHotelChain || !nextHotelID) {
+      alert("Please fill in all fields");
+      console.log(formAddress, formCategory, formEmail, formHotelChain, nextHotelID)
+      return;
+    }
+  
+    const query = `
+    INSERT INTO hotel (hotel_id, chain_id, address, num_rooms, contact_email, star_category)
+    VALUES ($1, $2, $3, $4, $5, $6)
+  `;
+    
+    const values = [nextHotelID, formHotelChain, formAddress, 1, formEmail, formCategory];
+
+    try {
+      const result = await runQuery(query, values);
+      console.log("Added hotel:", result);
+      setShowAddModal(false);
+      fetchHotels();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleDelete = async (table, idColumn, id) => {
+    if (!window.confirm("Are you sure you want to delete this record?")) return;
+  
+    try {
+      const query = `DELETE FROM ${table} WHERE ${idColumn} = $1`;  // SQL query
+      const values = [id];  // Values to replace placeholders in the query
+  
+      const response = await fetch("/api/runQuery", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query,
+          values,
+        }),
+      });
+  
+      if (response.ok) {
+        alert("Record deleted successfully!");
+        fetchHotelChains();  // Refresh the data
+        fetchEmployees();
+        fetchHotels();
+        fetchCustomers();
+        fetchRooms();
+        fetchHotelChainIDs();
+        fetchHotelIds();
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to delete:", errorData.message);
+        alert("Failed to delete record.");
+      }
+    } catch (error) {
+      console.error("Error deleting record:", error);
+      alert("Error deleting record.");
+    }
+  };
+
+  const fetchManagers = async () => {
+    try {
+      const response = await fetch("/api/getManagers");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setManagers(data);
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchRentings = async () => {
+    try {
+      const response = await fetch("/api/getRentings");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setRentings(data);
       } else {
         throw new Error("Failed to fetch row count");
       }
@@ -494,6 +840,11 @@ const AdminDashboard: React.FC = () => {
           fetchCustomers(),
           fetchEmployees(),
           fetchBookingList(),
+          fetchRentings(),
+          fetchAvailableRoomsPerArea(),
+          fetchManagers(),
+          fetchHotelChainIDs(),
+          fetchHotelIds(),
         ]);
       } catch (error) {
         console.log(error);
@@ -505,6 +856,8 @@ const AdminDashboard: React.FC = () => {
 
   const openAddModal = (type: string) => {
     setModalType(type);
+    nextHotelChainId();
+    nextHotelId();
     setShowAddModal(true);
   };
 
@@ -629,9 +982,9 @@ const AdminDashboard: React.FC = () => {
                   </Link>
                 </li>
                 <li className="px-6 py-3 hover:bg-gray-100">
-                  <Link href="#" className="flex items-center">
+                  <Link href="#" className="flex items-center" onClick={() => setActiveTab("managers")}>
                     <FileText className="h-5 w-5 mr-3" />
-                    <span>Reports</span>
+                    <span>Managers</span>
                   </Link>
                 </li>
                 <li className="px-6 py-3 hover:bg-gray-100">
@@ -701,7 +1054,7 @@ const AdminDashboard: React.FC = () => {
             <div className="mb-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">System Views</h2>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" >
                   Refresh Views
                 </button>
               </div>
@@ -790,6 +1143,7 @@ const AdminDashboard: React.FC = () => {
                     <option value="employees">Employees</option>
                     <option value="bookings">Bookings</option>
                     <option value="rentings">Rentings</option>
+                    <option value="managers">Managers</option>
                   </select>
                   <button
                     className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
@@ -872,6 +1226,16 @@ const AdminDashboard: React.FC = () => {
                   >
                     Rentings
                   </button>
+                  <button
+                    className={`px-4 py-2 ${
+                      activeTab === "managers"
+                        ? "text-blue-600 font-medium border-b-2 border-blue-600"
+                        : "text-gray-500 hover:text-blue-600"
+                    }`}
+                    onClick={() => setActiveTab("managers")}
+                  >
+                    Managers
+                  </button>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -908,10 +1272,8 @@ const AdminDashboard: React.FC = () => {
                            
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                                onClick={() => handleDelete("hotelchain", "chain_id", chain.chain_id)}>
                                   <Trash2 size={16} />
                                 </button>
                               </div>
@@ -973,10 +1335,7 @@ const AdminDashboard: React.FC = () => {
 
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200" onClick={() => handleDelete("hotel", "hotel_id", hotel.hotel_id)}>
                                   <Trash2 size={16} />
                                 </button>
                               </div>
@@ -1044,10 +1403,10 @@ const AdminDashboard: React.FC = () => {
 
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                {/* <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
                                   <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                </button> */}
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200" onClick={() => handleDelete("room", "room_id", room.room_id)}>
                                   <Trash2 size={16} />
                                 </button>
                               </div>
@@ -1115,10 +1474,10 @@ const AdminDashboard: React.FC = () => {
 
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                {/* <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
                                   <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                </button> */}
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200" onClick={() => handleDelete("customer", "customer_id", customer.customer_id)}>
                                   <Trash2 size={16} />
                                 </button>
                               </div>
@@ -1179,10 +1538,10 @@ const AdminDashboard: React.FC = () => {
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                {/* <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
                                   <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                </button> */}
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200" onClick={() => handleDelete("employee", "ssn", employee.ssn)}>
                                   <Trash2 size={16} />
                                 </button>
                               </div>
@@ -1212,9 +1571,6 @@ const AdminDashboard: React.FC = () => {
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Room ID
                           </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1235,22 +1591,98 @@ const AdminDashboard: React.FC = () => {
                             <td className="py-3 px-4 border-b border-gray-200">
                               {booking.room_id}
                             </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
 
+                    {activeTab === "rentings" && (
+                    <table className="min-w-full bg-white">
+                      <thead>
+                        <tr>
+                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Rental ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Customer ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Check In Date
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Check Out Date
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Room ID
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rentings.map((rental) => (
+                          <tr key={rental.rental_id} className="hover:bg-gray-50">
                             <td className="py-3 px-4 border-b border-gray-200">
-                              <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
+                              {rental.rental_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {rental.customer_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {rental.check_in_date}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {rental.check_out_date}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {rental.room_id}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   )}
+
+                  {activeTab === "managers" && (
+                    <table className="min-w-full bg-white">
+                      <thead>
+                        <tr>
+                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Employee SSN
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Hotel ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            First Name
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Last Name
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {managers.map((manage) => (
+                          <tr key={manage.ssn} className="hover:bg-gray-50">
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {manage.ssn}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {manage.hotel_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {manage.first_name}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {manage.last_name}
+                            </td>
+                            
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+
+
 
 
                 </div>
@@ -1372,19 +1804,16 @@ const AdminDashboard: React.FC = () => {
                     <thead>
                       <tr>
                         <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-700">
-                          Room #
+                          Room ID
                         </th>
                         <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-700">
-                          Hotel
-                        </th>
-                        <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-700">
-                          Capacity
+                          Hotel ID
                         </th>
                         <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-700">
                           Price
                         </th>
                         <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-700">
-                          Amenities
+                          Capacity
                         </th>
                         <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-sm font-semibold text-gray-700">
                           View
@@ -1398,23 +1827,19 @@ const AdminDashboard: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {mockRooms.map((room) => (
-                        <tr key={room.id} className="hover:bg-gray-50">
+                      {availableRooms.map((room) => (
+                        <tr key={room.room_id} className="hover:bg-gray-50">
                           <td className="py-2 px-4 border-b border-gray-200">
-                            {room.number}
+                            {room.room_id}
                           </td>
                           <td className="py-2 px-4 border-b border-gray-200">
-                            {mockHotels.find((h) => h.id === room.hotelId)
-                              ?.name || ""}
+                            {room.hotel_id} 
+                          </td>
+                          <td className="py-2 px-4 border-b border-gray-200">
+                          ${room.price}/night
                           </td>
                           <td className="py-2 px-4 border-b border-gray-200">
                             {room.capacity}
-                          </td>
-                          <td className="py-2 px-4 border-b border-gray-200">
-                            ${room.price}/night
-                          </td>
-                          <td className="py-2 px-4 border-b border-gray-200">
-                            {room.amenities}
                           </td>
                           <td className="py-2 px-4 border-b border-gray-200">
                             {room.view}
@@ -1472,40 +1897,36 @@ const AdminDashboard: React.FC = () => {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Name
+                            Chain ID
                           </label>
                           <input
                             type="text"
+                            value={nextChainID}
+                            disabled
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Address
+                            Central Office Address
                           </label>
                           <input
                             type="text"
+                            onChange={(e) => setFormCentralOfficeAddress(e.target.value)}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
-                          </label>
-                          <input
-                            type="email"
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Phone
-                          </label>
-                          <input
-                            type="tel"
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          />
-                        </div>
+                        <div className="flex justify-end space-x-2">
+                        <button
+                          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                          onClick={() => setShowAddModal(false)}
+                        >
+                          Cancel
+                        </button>
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleNewChain}>
+                          Save
+                        </button>
+                      </div>
                       </div>
                     )}
 
@@ -1513,10 +1934,12 @@ const AdminDashboard: React.FC = () => {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Name
+                            Hotel ID
                           </label>
                           <input
                             type="text"
+                            value={nextHotelID}
+                            disabled
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -1524,11 +1947,11 @@ const AdminDashboard: React.FC = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Hotel Chain
                           </label>
-                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select Hotel Chain</option>
-                            {mockHotelChains.map((chain) => (
-                              <option key={chain.id} value={chain.id}>
-                                {chain.name}
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setFormHotelChain(e.target.value)}>
+                            {hotelIDs.map((chain) => (
+                              <option key={chain} value={chain}>
+                                {chain}
                               </option>
                             ))}
                           </select>
@@ -1537,13 +1960,13 @@ const AdminDashboard: React.FC = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Category
                           </label>
-                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select Category</option>
-                            <option value="1-star">1-star</option>
-                            <option value="2-star">2-star</option>
-                            <option value="3-star">3-star</option>
-                            <option value="4-star">4-star</option>
-                            <option value="5-star">5-star</option>
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setFormCategory(e.target.value)}>
+                            <option value="1">1-star</option>
+                            <option value="2">2-star</option>
+                            <option value="3">3-star</option>
+                            <option value="4">4-star</option>
+                            <option value="5">5-star</option>
                           </select>
                         </div>
                         <div>
@@ -1553,6 +1976,7 @@ const AdminDashboard: React.FC = () => {
                           <input
                             type="text"
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            onChange={(e) => setFormAddress(e.target.value)}
                           />
                         </div>
                         <div>
@@ -1560,19 +1984,22 @@ const AdminDashboard: React.FC = () => {
                             Email
                           </label>
                           <input
+                            onChange={(e) => setFormEmail(e.target.value)}
                             type="email"
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Phone
-                          </label>
-                          <input
-                            type="tel"
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          />
-                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                            onClick={() => setShowAddModal(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleNewHotel}>
+                            Save
+                          </button>
+                      </div>
                       </div>
                     )}
 
@@ -1580,10 +2007,11 @@ const AdminDashboard: React.FC = () => {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Room Number
+                            Room ID (Must start with RM, ex: RM0010000)
                           </label>
                           <input
                             type="text"
+                            onChange={(e) => setFormRoomID(e.target.value)}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -1591,11 +2019,11 @@ const AdminDashboard: React.FC = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Hotel
                           </label>
-                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select Hotel</option>
-                            {mockHotels.map((hotel) => (
-                              <option key={hotel.id} value={hotel.id}>
-                                {hotel.name}
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setFormRoomHotel(e.target.value)}>
+                            {hotelIDList.map((hotel) => (
+                              <option key={hotel} value={hotel}>
+                                {hotel}
                               </option>
                             ))}
                           </select>
@@ -1605,6 +2033,7 @@ const AdminDashboard: React.FC = () => {
                             Price per Night
                           </label>
                           <input
+                          onChange={(e) => setFormPrice(e.target.value)}
                             type="number"
                             min="0"
                             step="0.01"
@@ -1615,42 +2044,36 @@ const AdminDashboard: React.FC = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Capacity
                           </label>
-                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select Capacity</option>
-                            <option value="single">Single</option>
-                            <option value="double">Double</option>
-                            <option value="triple">Triple</option>
-                            <option value="quad">Quad</option>
-                            <option value="suite">Suite</option>
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setFormCapacity(e.target.value)}>
+                            <option value="SINGLE">Single</option>
+                            <option value="DOUBLE">Double</option>
+                            <option value="TRIPLE">Triple</option>
+                            <option value="QUAD">Quad</option>
+                            <option value="SUITE">Suite</option>
                           </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Amenities
-                          </label>
-                          <input
-                            type="text"
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            placeholder="e.g. TV, AC, fridge, wifi"
-                          />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             View
                           </label>
-                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select View</option>
-                            <option value="sea">Sea View</option>
-                            <option value="mountain">Mountain View</option>
-                            <option value="city">City View</option>
-                            <option value="garden">Garden View</option>
-                            <option value="none">No View</option>
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setFormView(e.target.value)}>
+                            <option value="City View">City View</option>
+                            <option value="Garden View">Garden View</option>
+                            <option value="Sea View">Sea View</option>
+                            <option value="Mountain View">Mountain View</option>
+                            <option value="Lake View">Lake View</option>
+                            <option value="Pool View">Pool View</option>
+                            <option value="Forest View">Forest View</option>
+                            <option value="River View">River View</option>
                           </select>
                         </div>
                         <div className="flex items-center">
                           <input
                             type="checkbox"
                             id="extendable"
+                            onChange={(e) => setFormExtendable(e.target.checked)}
                             className="mr-2"
                           />
                           <label
@@ -1660,33 +2083,188 @@ const AdminDashboard: React.FC = () => {
                             Extendable (can add extra bed)
                           </label>
                         </div>
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                            onClick={() => setShowAddModal(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleNewRoom}>
+                            Save
+                          </button>
+                      </div>
+                      </div>
+                    )}
+
+                      {modalType === "customers" && (
+                      <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Issues/Damages
+                            Customer ID (Must start with CUST, ex: CUST4000)
                           </label>
-                          <textarea
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerID(e.target.value)}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            rows={3}
-                            placeholder="Describe any issues or damages"
-                          ></textarea>
+                          />
                         </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            First name
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerFirstName(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Last name
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerLastName(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                           Address
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerAddress(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            ID Type
+                          </label>
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setFormCustomerIDType(e.target.value)}>
+                            <option value="DRIVING_LICENSE">Driver License</option>
+                            <option value="SIN">SIN</option>
+                            <option value="SSN">SSN</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                           ID Number
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerIDNumber(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                            onClick={() => setShowAddModal(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleNewCustomer}>
+                            Save
+                          </button>
+                      </div>
+                      </div>
+                    )}
+
+                      {modalType === "employees" && (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            SSN
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerID(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Hotel ID
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerFirstName(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            First name
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerFirstName(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Last name
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerLastName(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                           Address
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerAddress(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Role
+                          </label>
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setFormCustomerIDType(e.target.value)}>
+                            <option value="DRIVING_LICENSE">Driver License</option>
+                            <option value="SIN">SIN</option>
+                            <option value="SSN">SSN</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                           ID Number
+                          </label>
+                          <input
+                            type="text"
+                            onChange={(e) => setFormCustomerIDNumber(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                            onClick={() => setShowAddModal(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleNewCustomer}>
+                            Save
+                          </button>
+                      </div>
                       </div>
                     )}
 
                     {/* Similar form fields for customers, employees, etc. would go here */}
                   </div>
 
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-                      onClick={() => setShowAddModal(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                      Save
-                    </button>
-                  </div>
+                  
                 </div>
               </div>
             )}
