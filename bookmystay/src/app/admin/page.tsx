@@ -304,6 +304,13 @@ const AdminDashboard: React.FC = () => {
   const [formEmployeeLastName, setFormEmployeeLastName] = useState("");
   const [formEmployeeAddress, setFormEmployeeAddress] = useState("");
 
+  // Create Booking
+  const [bookingCustomer, setBookingCustomer] = useState("CUST3088");
+  const [bookingRoom, setBookingRoom] = useState("RM0010102");
+  const [bookingStartDate, setBookingStartDate] = useState("");
+  const [bookingEndDate, setBookingEndDate] = useState("");
+  const [bookingHotel, setBookingHotel] = useState("HTL00100");
+
   const [rooms, setRooms] = useState([]);
   const [rentings, setRentings] = useState([]);
   const [managers, setManagers] = useState([]);
@@ -322,8 +329,10 @@ const AdminDashboard: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showBookingModal, setShowBookingModal] = useState<boolean>(false);
   const [hotelIDs, setHotelIDs] = useState([]);
+  const [roomIDs, setRoomIDs] = useState([]);
   const [modalType, setModalType] = useState<string>("");
   const [hotelIDList, setHotelIDList] = useState("");
+  const [customerIDList, setCustomerIDList] = useState([]);
 
   const fetchHotelChainIDs = async () => {
     try {
@@ -339,6 +348,20 @@ const AdminDashboard: React.FC = () => {
     }
     }
 
+    const fetchHotelRoomIDs = async () => {
+      try {
+        const response = await fetch('/api/room_id');
+        if (response.ok) {
+          const data = await response.json();
+          setRoomIDs(data); // Store the hotel ids from the response
+        } else {
+          throw new Error('Failed to fetch hotel ids');
+        }
+      } catch (error) {
+        console.log(error.message)
+      }
+      }
+
     const fetchHotelIds = async () => {
       try {
         const response = await fetch('/api/hotel_id');
@@ -352,6 +375,20 @@ const AdminDashboard: React.FC = () => {
         console.log(error.message)
       }
       }
+
+      const fetchCustomerIDs = async () => {
+        try {
+          const response = await fetch('/api/customer_names');
+          if (response.ok) {
+            const data = await response.json();
+            setCustomerIDList(data); // Store the hotel ids from the response
+          } else {
+            throw new Error('Failed to fetch hotel ids');
+          }
+        } catch (error) {
+          console.log(error.message)
+        }
+        }
 
     
 
@@ -579,14 +616,40 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleNewEmployee = async () => {
-    if (!formSSN || !formHotelID || !formRole || !formEmployeeFirstName || !formEmployeeLastName || !formEmployeeAddress) {
+  const handleNewBooking = async () => {
+    if (!bookingCustomer || !bookingRoom || !bookingStartDate || !bookingEndDate || !bookingHotel) {
       alert("Please fill in all fields");
+      console.log(bookingCustomer, bookingRoom, bookingStartDate, bookingEndDate, bookingHotel)
       return;
     }
   
     const query = `
-    INSERT INTO customer (ssn, hotel_id, first_name, last_name, address, role)
+    INSERT INTO booking (booking_id, customer_id, start_date, end_date, room_id)
+    VALUES ($1, $2, $3, $4, $5)
+  `;
+    const booking_id = Math.floor(Math.random() * 9000) + 1000;
+    const values = [booking_id, bookingCustomer, bookingStartDate, bookingEndDate, bookingRoom];
+
+    try {
+      const result = await runQuery(query, values);
+      console.log("Added new booking:", result);
+      setShowBookingModal(false);
+      fetchBookingList();
+      fetchBookings();
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleNewEmployee = async () => {
+    if (!formSSN || !formHotelID || !formRole || !formEmployeeFirstName || !formEmployeeLastName || !formEmployeeAddress) {
+      alert("Please fill in all fields");
+      console.log(formSSN, formHotelID, formRole, formEmployeeFirstName, formEmployeeLastName, formEmployeeAddress)
+      return;
+    }
+  
+    const query = `
+    INSERT INTO employee (ssn, hotel_id, first_name, last_name, address, role)
     VALUES ($1, $2, $3, $4, $5, $6)
   `;
     
@@ -845,6 +908,8 @@ const AdminDashboard: React.FC = () => {
           fetchManagers(),
           fetchHotelChainIDs(),
           fetchHotelIds(),
+          fetchCustomerIDs(),
+          fetchHotelRoomIDs(),
         ]);
       } catch (error) {
         console.log(error);
@@ -1724,11 +1789,11 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                       <option value="">Select Customer</option>
-                      {mockCustomers.map((customer) => (
-                        <option key={customer.id} value={customer.id}>
-                          {customer.name}
-                        </option>
-                      ))}
+                      {customerIDList.map((customer) => (
+                              <option key={customer} value={customer}>
+                                {customer}
+                              </option>
+                            ))}
                     </select>
                   </div>
                   <div>
@@ -1749,7 +1814,6 @@ const AdminDashboard: React.FC = () => {
                       Room
                     </label>
                     <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                      <option value="">Select Room</option>
                       {mockRooms.map((room) => (
                         <option key={room.id} value={room.id}>
                           Room {room.number} - {room.capacity}
@@ -2182,19 +2246,22 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerID(e.target.value)}
+                            onChange={(e) => setFormSSN(e.target.value)}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Hotel ID
+                            Hotel
                           </label>
-                          <input
-                            type="text"
-                            onChange={(e) => setFormCustomerFirstName(e.target.value)}
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          />
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setFormHotelID(e.target.value)}>
+                            {hotelIDList.map((hotel) => (
+                              <option key={hotel} value={hotel}>
+                                {hotel}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -2202,7 +2269,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerFirstName(e.target.value)}
+                            onChange={(e) => setFormEmployeeFirstName(e.target.value)}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2212,7 +2279,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerLastName(e.target.value)}
+                            onChange={(e) => setFormEmployeeLastName(e.target.value)}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2222,7 +2289,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerAddress(e.target.value)}
+                            onChange={(e) => setFormEmployeeAddress(e.target.value)}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2231,21 +2298,13 @@ const AdminDashboard: React.FC = () => {
                             Role
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormCustomerIDType(e.target.value)}>
-                            <option value="DRIVING_LICENSE">Driver License</option>
-                            <option value="SIN">SIN</option>
-                            <option value="SSN">SSN</option>
+                          onChange={(e) => setFormRole(e.target.value)}>
+                            <option value="Receptionist">Receptionist</option>
+                            <option value="Housekeeper">Housekeeper</option>
+                            <option value="Chef">Chef</option>
+                            <option value="Security">Security</option>
+                            <option value="Manager">Manager</option>
                           </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                           ID Number
-                          </label>
-                          <input
-                            type="text"
-                            onChange={(e) => setFormCustomerIDNumber(e.target.value)}
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          />
                         </div>
                         <div className="flex justify-end space-x-2">
                           <button
@@ -2254,7 +2313,7 @@ const AdminDashboard: React.FC = () => {
                           >
                             Cancel
                           </button>
-                          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleNewCustomer}>
+                          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleNewEmployee}>
                             Save
                           </button>
                       </div>
@@ -2296,24 +2355,25 @@ const AdminDashboard: React.FC = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Customer
                           </label>
-                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select Customer</option>
-                            {mockCustomers.map((customer) => (
-                              <option key={customer.id} value={customer.id}>
-                                {customer.name}
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setBookingCustomer(e.target.value)}>
+                            {customerIDList.map((customer) => (
+                              <option key={customer} value={customer}>
+                                {customer}
                               </option>
                             ))}
+
                           </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Hotel
                           </label>
-                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select Hotel</option>
-                            {mockHotels.map((hotel) => (
-                              <option key={hotel.id} value={hotel.id}>
-                                {hotel.name}
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setBookingHotel(e.target.value)}>
+                            {hotelIDList.map((hotel) => (
+                              <option key={hotel} value={hotel}>
+                                {hotel}
                               </option>
                             ))}
                           </select>
@@ -2322,11 +2382,11 @@ const AdminDashboard: React.FC = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Room
                           </label>
-                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="">Select Room</option>
-                            {mockRooms.map((room) => (
-                              <option key={room.id} value={room.id}>
-                                Room {room.number} - {room.capacity}
+                          <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          onChange={(e) => setBookingRoom(e.target.value)}>
+                            {roomIDs.map((room) => (
+                              <option key={room} value={room}>
+                               {room}
                               </option>
                             ))}
                           </select>
@@ -2338,6 +2398,7 @@ const AdminDashboard: React.FC = () => {
                             </label>
                             <input
                               type="date"
+                              onChange={(e) => setBookingStartDate(e.target.value)}
                               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
                           </div>
@@ -2347,10 +2408,23 @@ const AdminDashboard: React.FC = () => {
                             </label>
                             <input
                               type="date"
+                              onChange={(e) => setBookingEndDate(e.target.value)}
                               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
                           </div>
-                        </div>
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                        <button
+                          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                          onClick={() => setShowBookingModal(false)}
+                        >
+                          Cancel
+                        </button>
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" onClick={handleNewBooking}>
+                          Save
+                        </button>
+                      </div>
+                        
                       </div>
                     )}
 
@@ -2502,7 +2576,7 @@ const AdminDashboard: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="flex justify-end space-x-2">
+                  {/* <div className="flex justify-end space-x-2">
                     <button
                       className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
                       onClick={() => setShowBookingModal(false)}
@@ -2516,7 +2590,7 @@ const AdminDashboard: React.FC = () => {
                         ? "Create Rental"
                         : "Convert to Rental"}
                     </button>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}
