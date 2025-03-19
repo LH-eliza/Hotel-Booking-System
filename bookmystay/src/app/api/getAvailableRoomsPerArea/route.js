@@ -10,7 +10,6 @@ export async function GET(request) {
     const result = await pool.query(query);
 
     // Send the entire table as JSON
-    console.log(result.rows);
     return NextResponse.json(result.rows);
   } catch (error) {
     console.error("Error executing query", error.stack);

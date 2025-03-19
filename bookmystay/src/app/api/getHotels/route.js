@@ -3,7 +3,7 @@ import pool from "../../../../db";
 
 export async function GET(request) {
   const query = `
-    select * from aggregated_room_capacity_per_hotel
+    select * from hotel
   `;
 
   try {

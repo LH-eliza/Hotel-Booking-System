@@ -293,6 +293,12 @@ const mockRoomCapacity: HotelCapacity[] = [
 ];
 
 const AdminDashboard: React.FC = () => {
+  const [hotelChains, setHotelChains] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [bookingsList, setBookingsList] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [hotelRecords, setHotelRecords] = useState([]);
   const [hotelChainCount, setHotelChainCount] = useState("...");
   const [hotelCount, setHotelCount] = useState("...");
   const [customerCount, setCustomerCount] = useState("...");
@@ -374,6 +380,90 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchHotels = async () => {
+    try {
+      const response = await fetch("/api/getHotels");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setHotelRecords(data);
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await fetch("/api/getEmployees");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setEmployees(data);
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchBookingList = async () => {
+    try {
+      const response = await fetch("/api/getBookingList");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setBookingsList(data);
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchRooms = async () => {
+    try {
+      const response = await fetch("/api/getRooms");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setRooms(data);
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await fetch("/api/getCustomers");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setCustomers(data);
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchHotelChains = async () => {
+    try {
+      const response = await fetch("/api/getHotelChains");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setHotelChains(data);
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
   const fetchCustomerCount = async () => {
     try {
       const response = await fetch("/api/getCustomerCount");  // Correct route
@@ -389,12 +479,28 @@ const AdminDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchHotelChainCount();
-    fetchHotelCount();
-    fetchCustomerCount();
-    fetchBookings();
-    fetchAvailableRooms();
-    fetchHotelCapacity();
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          fetchHotels(),
+          fetchHotelChainCount(),
+          fetchHotelCount(),
+          fetchCustomerCount(),
+          fetchBookings(),
+          fetchAvailableRooms(),
+          fetchHotelCapacity(),
+          fetchHotelChains(),
+          fetchRooms(),
+          fetchCustomers(),
+          fetchEmployees(),
+          fetchBookingList(),
+        ]);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const openAddModal = (type: string) => {
@@ -416,7 +522,6 @@ const AdminDashboard: React.FC = () => {
           content="Admin dashboard for e-Hotels system"
         />
       </Head>
-
       <div className="flex flex-col h-screen bg-gray-100">
         {/* Header */}
         <header className="bg-blue-700 text-white p-4 shadow-md">
@@ -775,22 +880,13 @@ const AdminDashboard: React.FC = () => {
                       <thead>
                         <tr>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            ID
+                            Chain ID
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Name
+                            Number of Hotels
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Hotels
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Address
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Email
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Phone
+                            Central Office Address
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Actions
@@ -798,26 +894,18 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {mockHotelChains.map((chain) => (
-                          <tr key={chain.id} className="hover:bg-gray-50">
+                        {hotelChains.map((chain) => (
+                          <tr key={chain.chain_id} className="hover:bg-gray-50">
                             <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.id}
+                              {chain.chain_id}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.name}
+                              {chain.num_hotels}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.hotels}
+                              {chain.central_office_address}
                             </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.address}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.email}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.phone}
-                            </td>
+                           
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
                                 <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
@@ -838,29 +926,23 @@ const AdminDashboard: React.FC = () => {
                     <table className="min-w-full bg-white">
                       <thead>
                         <tr>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            ID
+                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Chain ID
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Name
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Chain
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Category
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Rooms
+                            Hotel ID
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Address
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Number of Rooms
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Email
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Phone
+                            Star Category
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Actions
@@ -868,31 +950,232 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {mockHotels.map((hotel) => (
-                          <tr key={hotel.id} className="hover:bg-gray-50">
+                        {hotelRecords.map((hotel) => (
+                          <tr key={hotel.hotel_id} className="hover:bg-gray-50">
                             <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.id}
+                              {hotel.chain_id}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.name}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.chain}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.category}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.rooms}
+                              {hotel.hotel_id}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
                               {hotel.address}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.email}
+                              {hotel.num_rooms}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.phone}
+                              {hotel.contact_email}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {hotel.star_category}
+                            </td>
+
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              <div className="flex space-x-2">
+                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                  <Edit size={16} />
+                                </button>
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+
+                    {activeTab === "rooms" && (
+                    <table className="min-w-full bg-white">
+                      <thead>
+                        <tr>
+                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Room ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Hotel ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Price
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Capacity
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            View
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Extendable
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rooms.map((room) => (
+                          <tr key={room.room_id} className="hover:bg-gray-50">
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.room_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.hotel_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.price}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.capacity}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.view}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                            {room.extendable ? "TRUE" : "FALSE"}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.status}
+                            </td>
+
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              <div className="flex space-x-2">
+                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                  <Edit size={16} />
+                                </button>
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+
+                    {activeTab === "customers" && (
+                    <table className="min-w-full bg-white">
+                      <thead>
+                        <tr>
+                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Customer ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            First name
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Last name
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Address
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            ID Type
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            ID Number
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Registration Date
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {customers.map((customer) => (
+                          <tr key={customer.customer_id} className="hover:bg-gray-50">
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {customer.customer_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {customer.first_name}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {customer.last_name}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {customer.address}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {customer.id_type}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                            {customer.id_number}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {customer.registration_date}
+                            </td>
+
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              <div className="flex space-x-2">
+                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                  <Edit size={16} />
+                                </button>
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+
+                  {activeTab === "employees" && (
+                    <table className="min-w-full bg-white">
+                      <thead>
+                        <tr>
+                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            SSN
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Hotel ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            First Name
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Last Name
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Address
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Role
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {employees.map((employee) => (
+                          <tr key={employee.ssn} className="hover:bg-gray-50">
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {employee.ssn}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {employee.hotel_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {employee.first_name}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {employee.last_name}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {employee.address}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                            {employee.role}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
@@ -910,7 +1193,66 @@ const AdminDashboard: React.FC = () => {
                     </table>
                   )}
 
-                  {/* Additional tables for other tabs would go here */}
+                  {activeTab === "bookings" && (
+                    <table className="min-w-full bg-white">
+                      <thead>
+                        <tr>
+                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Booking ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Customer ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Start Date
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            End Date
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Room ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bookingsList.map((booking) => (
+                          <tr key={booking.booking_id} className="hover:bg-gray-50">
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {booking.booking_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {booking.customer_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {booking.start_date}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {booking.end_date}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {booking.room_id}
+                            </td>
+
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              <div className="flex space-x-2">
+                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                  <Edit size={16} />
+                                </button>
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+
+
                 </div>
               </div>
             </div>
