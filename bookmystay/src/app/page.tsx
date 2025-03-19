@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ChevronDown, Menu } from "lucide-react";
 import Background from "./components/background";
@@ -9,6 +9,7 @@ import GuestSelector from "./components/guest";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import Link from "next/link";
+
 
 interface DateRange {
   startDate: string;
@@ -35,26 +36,91 @@ interface SearchFormData {
 }
 
 // Sample data for dropdowns
-const HOTELS: string[] = [
-  "Westin",
-  "Hilton",
-  "Marriott",
-  "Four Seasons",
-  "Hyatt",
-  "Ritz-Carlton",
-];
-const DESTINATIONS: string[] = [
-  "New York",
-  "Los Angeles",
-  "Miami",
-  "Chicago",
-  "Las Vegas",
-  "San Francisco",
-  "Orlando",
-];
+// const HOTELS: string[] = [
+//   "Westin",
+//   "Hilton",
+//   "Marriott",
+//   "Four Seasons",
+//   "Hyatt",
+//   "Ritz-Carlton",
+// ];
+
+// const DESTINATIONS: string[] = [
+//   'Centretown', 'The Glebe', 'Byward Market', 'Rockcliffe Park', 'Westboro', 'Old Ottawa East', 
+//   'Orleans', 'Kanata', 'Barrhaven', 'Nepean', 'Manotick', 'Stittsville', 'New Edinburgh', 
+//   'Sandy Hill', 'Carleton Heights', 'Carp', 'Alta Vista', 'Little Italy', 'Overbrook', 'Cumberland'
+// ];
 
 const HotelSearchPage: React.FC = () => {
+  const [destinations, setDestinations] = useState([]);
+  const [hotels, setHotels] = useState([]);
+  const [query, setQuery] = useState('SELECT * FROM Customer');  // State to hold the query string
+  const [data, setData] = useState(null);  // State to hold the API response
+  const [error, setError] = useState("");  // State to hold any errors
   const router = useRouter();
+
+  const handleQueryChange = (event) => {
+    setQuery(event.target.value);  // Update query state when input changes
+  };
+
+  useEffect(() => {
+    fetchNeighborhoods();
+    fetchHotelChainID();
+    fetchData();  // Fetch data when the component mounts
+  }
+  , [query]);  // Re-fetch data when the query state changes
+
+  const fetchNeighborhoods = async () => {
+    try {
+      const response = await fetch('/api/destinations');
+      if (response.ok) {
+        const data = await response.json();
+        setDestinations(data); // Store the destinations from the response
+      } else {
+        throw new Error('Failed to fetch destinations');
+      }
+    } catch (error) {
+      console.log(error.message)
+      setError(error.message);
+    }
+    }
+
+    const fetchHotelChainID = async () => {
+      try {
+        const response = await fetch('/api/hotel_chain');
+        if (response.ok) {
+          const data = await response.json();
+          setHotels(data); // Store the hotel ids from the response
+        } else {
+          throw new Error('Failed to fetch hotel ids');
+        }
+      } catch (error) {
+        console.log(error.message)
+        setError(error.message);
+      }
+      }
+
+  const fetchData = async () => {
+    if (!query) {
+      setError('Query cannot be empty');
+      return;
+    }
+
+    try {
+      // Send the query to the backend via GET request
+      const response = await fetch(`/api/data?query=${encodeURIComponent(query)}`);
+
+      if (response.ok) {
+        const jsonData = await response.json();
+        setData(jsonData);  // Store the data in state
+        setError("");  // Clear any previous errors
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    } catch (error) {
+      setError(error.message);  // Set the error message
+    }
+  };
 
   const [formData, setFormData] = useState<SearchFormData>({
     dates: null,
@@ -148,7 +214,7 @@ const HotelSearchPage: React.FC = () => {
               </div>
               <div className="flex-1 px-3 border-l border-gray-200">
                 <label className="block text-xs text-gray-500 mb-1">
-                  HOTEL NAME
+                  HOTEL CHAIN
                 </label>
                 <div className="relative">
                   <button
@@ -167,7 +233,7 @@ const HotelSearchPage: React.FC = () => {
 
                   {openDropdown === "hotel" && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                      {HOTELS.map((hotel) => (
+                      {hotels.map((hotel) => (
                         <div
                           key={hotel}
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
@@ -184,7 +250,7 @@ const HotelSearchPage: React.FC = () => {
               {/* Destination Dropdown */}
               <div className="flex-1 px-3 border-l border-gray-200">
                 <label className="block text-xs text-gray-500 mb-1">
-                  DESTINATION
+                  NEIGHBORHOOD
                 </label>
                 <div className="relative">
                   <button
@@ -205,7 +271,7 @@ const HotelSearchPage: React.FC = () => {
 
                   {openDropdown === "destination" && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                      {DESTINATIONS.map((destination) => (
+                      {destinations.map((destination) => (
                         <div
                           key={destination}
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
@@ -268,7 +334,7 @@ const HotelSearchPage: React.FC = () => {
 
                 <div className="mb-4">
                   <label className="block text-xs text-gray-500 mb-1">
-                    HOTEL NAME
+                    HOTEL CHAIN
                   </label>
                   <div className="relative">
                     <button
@@ -289,7 +355,7 @@ const HotelSearchPage: React.FC = () => {
 
                     {openDropdown === "hotel-mobile" && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                        {HOTELS.map((hotel) => (
+                        {hotels.map((hotel) => (
                           <div
                             key={hotel}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
@@ -326,7 +392,7 @@ const HotelSearchPage: React.FC = () => {
 
                     {openDropdown === "destination-mobile" && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                        {DESTINATIONS.map((destination) => (
+                        {destinations.map((destination) => (
                           <div
                             key={destination}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"

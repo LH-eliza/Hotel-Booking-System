@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Head from "next/head";
 import {
@@ -293,10 +293,109 @@ const mockRoomCapacity: HotelCapacity[] = [
 ];
 
 const AdminDashboard: React.FC = () => {
+  const [hotelChainCount, setHotelChainCount] = useState("...");
+  const [hotelCount, setHotelCount] = useState("...");
+  const [customerCount, setCustomerCount] = useState("...");
+  const [bookings, setBookings] = useState("...");
+  const [hotelCapacity, setHotelCapacity] = useState([]);
+  const [availableRoomsPerArea, setAvailableRoomsPerArea] = useState([]);
   const [activeTab, setActiveTab] = useState<string>("hotelchains");
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showBookingModal, setShowBookingModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<string>("");
+
+  const fetchHotelChainCount = async () => {
+    try {
+      const response = await fetch("/api/getHotelChainCount");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setHotelChainCount(data.total);  // Store the row count in state
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchAvailableRooms = async () => {
+    try {
+      const response = await fetch("/api/getAvailableRoomsPerArea");  // Call the backend route
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableRoomsPerArea(data);  // Store the table data in state
+      } else {
+        throw new Error("Failed to fetch rooms");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchHotelCapacity = async () => {
+    try {
+      const response = await fetch("/api/getRoomCapacityPerHotel");  // Call the backend route
+      if (response.ok) {
+        const data = await response.json();
+        setHotelCapacity(data);  // Store the table data in state
+      } else {
+        throw new Error("Failed to fetch rooms");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchBookings = async () => {
+    try {
+      const response = await fetch("/api/getBookings");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setBookings(data.total);  // Store the row count in state
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchHotelCount = async () => {
+    try {
+      const response = await fetch("/api/getHotelCount");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setHotelCount(data.total);  // Store the row count in state
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const fetchCustomerCount = async () => {
+    try {
+      const response = await fetch("/api/getCustomerCount");  // Correct route
+      if (response.ok) {
+        const data = await response.json();
+        setCustomerCount(data.total);  // Store the row count in state
+      } else {
+        throw new Error("Failed to fetch row count");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  useEffect(() => {
+    fetchHotelChainCount();
+    fetchHotelCount();
+    fetchCustomerCount();
+    fetchBookings();
+    fetchAvailableRooms();
+    fetchHotelCapacity();
+  }, []);
 
   const openAddModal = (type: string) => {
     setModalType(type);
@@ -452,7 +551,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Hotel Chains</div>
-                      <div className="text-xl font-semibold">5</div>
+                      <div className="text-xl font-semibold">{hotelChainCount}</div>
                     </div>
                   </div>
                 </div>
@@ -463,7 +562,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Hotels</div>
-                      <div className="text-xl font-semibold">42</div>
+                      <div className="text-xl font-semibold">{hotelCount}</div>
                     </div>
                   </div>
                 </div>
@@ -474,7 +573,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Customers</div>
-                      <div className="text-xl font-semibold">1,247</div>
+                      <div className="text-xl font-semibold">{customerCount}</div>
                     </div>
                   </div>
                 </div>
@@ -487,7 +586,7 @@ const AdminDashboard: React.FC = () => {
                       <div className="text-sm text-gray-500">
                         Active Bookings
                       </div>
-                      <div className="text-xl font-semibold">128</div>
+                      <div className="text-xl font-semibold">{bookings}</div>
                     </div>
                   </div>
                 </div>
@@ -520,13 +619,13 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {mockAvailableRooms.map((item, index) => (
+                        {availableRoomsPerArea.map((item, index) => (
                           <tr key={index}>
                             <td className="py-2 px-4 border-b border-gray-200">
                               {item.area}
                             </td>
                             <td className="py-2 px-4 border-b border-gray-200">
-                              {item.available}
+                              {item.available_rooms}
                             </td>
                           </tr>
                         ))}
@@ -553,13 +652,13 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {mockRoomCapacity.map((item, index) => (
+                        {hotelCapacity.map((item, index) => (
                           <tr key={index}>
                             <td className="py-2 px-4 border-b border-gray-200">
-                              {item.hotel}
+                              {item.hotel_id}
                             </td>
                             <td className="py-2 px-4 border-b border-gray-200">
-                              {item.totalCapacity}
+                              {item.total_capacity}
                             </td>
                           </tr>
                         ))}
