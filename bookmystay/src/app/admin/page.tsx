@@ -230,14 +230,6 @@ const AdminDashboard: React.FC = () => {
   // Create Chain
   const [formCentralOfficeAddress, setFormCentralOfficeAddress] = useState("");
 
-  // Create Room
-  const [formRoomID, setFormRoomID] = useState("");
-  const [formPrice, setFormPrice] = useState("");
-  const [formCapacity, setFormCapacity] = useState("SINGLE");
-  const [formView, setFormView] = useState("City View");
-  const [formExtendable, setFormExtendable] = useState(false);
-  const [formRoomHotel, setFormRoomHotel] = useState("HTL00100");
-
   // Create Customer
   const [formCustomerID, setFormCustomerID] = useState("");
   const [formCustomerFirstName, setFormCustomerFirstName] = useState("");
@@ -698,7 +690,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleNewRoom = async () => {
-    if (!formRoomID || !formPrice || !formCapacity || !formView) {
+    if (!formData.roomID || !formData.price || !formData.capacity || !formData.view) {
       alert("Please fill in all fields");
       return;
     }
@@ -708,7 +700,7 @@ const AdminDashboard: React.FC = () => {
     VALUES ($1, $2, $3, $4, $5, $6, $7)
   `;
     
-    const values = [formRoomID, formRoomHotel, formPrice, formCapacity, formView, formExtendable, "Available"];
+    const values = [formData.roomID, formData.roomHotel, formData.price, formData.capacity, formData.view, formData.extendable, "Available"];
 
     try {
       const result = await runQuery(query, values);
@@ -2550,7 +2542,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormRoomID(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, roomID: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2559,7 +2551,7 @@ const AdminDashboard: React.FC = () => {
                             Hotel
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormRoomHotel(e.target.value)}>
+                          onChange={(e) => setFormData({ ...formData, roomHotel: e.target.value })}>
                             {hotelIDList.map((hotel) => (
                               <option key={hotel} value={hotel}>
                                 {hotel}
@@ -2572,7 +2564,7 @@ const AdminDashboard: React.FC = () => {
                             Price per Night
                           </label>
                           <input
-                          onChange={(e) => setFormPrice(e.target.value)}
+                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                             type="number"
                             min="0"
                             step="0.01"
@@ -2584,7 +2576,8 @@ const AdminDashboard: React.FC = () => {
                             Capacity
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormCapacity(e.target.value)}>
+                          onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                          >
                             <option value="SINGLE">Single</option>
                             <option value="DOUBLE">Double</option>
                             <option value="TRIPLE">Triple</option>
@@ -2597,7 +2590,8 @@ const AdminDashboard: React.FC = () => {
                             View
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormView(e.target.value)}>
+                          onChange={(e) => setFormData({ ...formData, view: e.target.value })}
+                          >
                             <option value="City View">City View</option>
                             <option value="Garden View">Garden View</option>
                             <option value="Sea View">Sea View</option>
@@ -2612,7 +2606,7 @@ const AdminDashboard: React.FC = () => {
                           <input
                             type="checkbox"
                             id="extendable"
-                            onChange={(e) => setFormExtendable(e.target.checked)}
+                            onChange={(e) => setFormData({ ...formData, extendable: e.target.checked })}
                             className="mr-2"
                           />
                           <label
