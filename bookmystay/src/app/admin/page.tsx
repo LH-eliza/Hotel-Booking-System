@@ -228,14 +228,6 @@ const AdminDashboard: React.FC = () => {
     centralOfficeAddress: "",
   });
 
-  // Create Employee
-  const [formSSN, setFormSSN] = useState("");
-  const [formHotelID, setFormHotelID] = useState("HTL00100");
-  const [formRole, setFormRole] = useState("Receptionist");
-  const [formEmployeeFirstName, setFormEmployeeFirstName] = useState("");
-  const [formEmployeeLastName, setFormEmployeeLastName] = useState("");
-  const [formEmployeeAddress, setFormEmployeeAddress] = useState("");
-
   // Create Booking
   const [bookingCustomer, setBookingCustomer] = useState("CUST3088");
   const [bookingRoom, setBookingRoom] = useState("RM0010102");
@@ -655,9 +647,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleNewEmployee = async () => {
-    if (!formSSN || !formHotelID || !formRole || !formEmployeeFirstName || !formEmployeeLastName || !formEmployeeAddress) {
+    if (!formData.ssn || !formData.employeeHotelID || !formData.employeeRole || !formData.employeeFirstName || !formData.employeeLastName || !formData.employeeAddress) {
       alert("Please fill in all fields");
-      console.log(formSSN, formHotelID, formRole, formEmployeeFirstName, formEmployeeLastName, formEmployeeAddress)
+      console.log(formData.ssn, formData.employeeHotelID, formData.employeeRole, formData.employeeFirstName, formData.employeeLastName, formData.employeeAddress)
       return;
     }
   
@@ -666,7 +658,7 @@ const AdminDashboard: React.FC = () => {
     VALUES ($1, $2, $3, $4, $5, $6)
   `;
     
-    const values = [formSSN, formHotelID, formEmployeeFirstName, formEmployeeLastName, formEmployeeAddress, formRole];
+    const values = [formData.ssn, formData.employeeHotelID, formData.employeeFirstName, formData.employeeLastName, formData.employeeAddress, formData.employeeRole];
 
     try {
       const result = await runQuery(query, values);
@@ -2705,7 +2697,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormSSN(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, employeeSSN: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2714,7 +2706,8 @@ const AdminDashboard: React.FC = () => {
                             Hotel
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormHotelID(e.target.value)}>
+                          onChange={(e) => setFormData({ ...formData, employeeHotelID: e.target.value })}
+                          >
                             {hotelIDList.map((hotel) => (
                               <option key={hotel} value={hotel}>
                                 {hotel}
@@ -2728,7 +2721,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormEmployeeFirstName(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, employeeFirstName: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2738,7 +2731,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormEmployeeLastName(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, employeeLastName: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2748,7 +2741,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormEmployeeAddress(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, employeeAddress: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2757,7 +2750,8 @@ const AdminDashboard: React.FC = () => {
                             Role
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormRole(e.target.value)}>
+                          onChange={(e) => setFormData({ ...formData, employeeRole: e.target.value })}
+                          >
                             <option value="Receptionist">Receptionist</option>
                             <option value="Housekeeper">Housekeeper</option>
                             <option value="Chef">Chef</option>
