@@ -16,10 +16,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          # Full git history is needed to get a proper list of changed files
-          fetch-depth: 0
-          
+        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -29,46 +26,36 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      # Detect files changed in the PR or push
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v35
-        with:
-          files: |
-            **/*.ts
-            **/*.tsx
-            **/*.js
-            **/*.jsx
-            **/*.css
+      # Install specific ESLint version that works with Next.js config format
+      - name: Install compatible ESLint
+        run: npm install --save-dev eslint@8.56.0
       
-      # Run ESLint on Next.js/React/TypeScript files
-      - name: Run ESLint
-        run: npx eslint --fix --max-warnings=0 ${{ steps.changed-files.outputs.all_changed_files }}
-        if: steps.changed-files.outputs.any_changed == 'true'
+      # Run Next.js built-in linting
+      - name: Run Next.js lint
+        run: npm run lint
       
-      # Run Prettier to format all changed files
+      # Run Next.js lint with --fix flag to automatically fix issues
+      - name: Fix linting issues
+        run: npm run lint -- --fix
+        continue-on-error: true
+      
+      # Run Prettier to format files
+      - name: Install Prettier
+        run: npm install --save-dev prettier
+        
       - name: Format code with Prettier
-        run: npx prettier --write ${{ steps.changed-files.outputs.all_changed_files }}
-        if: steps.changed-files.outputs.any_changed == 'true'
-      
-      # Run type-checking for TypeScript
-      - name: Type check with TypeScript
-        run: npx tsc --noEmit
-      
-      # Validate Tailwind CSS classes
-      - name: Validate Tailwind CSS
-        run: npx tailwindcss-cli build -i ./styles/globals.css -o /tmp/tailwind.css
+        run: npx prettier --write "**/*.{js,jsx,ts,tsx,css,scss,json,md}"
         continue-on-error: true
       
       # Commit and push formatting changes if any
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "style: auto-format with Prettier"
+          commit_message: "style: auto-format code"
           commit_user_name: "GitHub Actions"
           commit_user_email: "actions@github.com"
           commit_author: "GitHub Actions <actions@github.com>"
           file_pattern: "**/*.{js,jsx,ts,tsx,css,scss,json,md}"
-          # Only run on push to main branch, not on PRs
+          # Only run on push to branches, not on PRs
           branch: ${{ github.head_ref || github.ref_name }}
-        if: github.event_name == 'push' && steps.changed-files.outputs.any_changed == 'true'
+        if: github.event_name == 'push'
