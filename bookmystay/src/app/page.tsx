@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, ChevronDown, Menu } from "lucide-react";
 import Background from "./components/background";
 import SimpleDatePicker from "./components/datepicker";
-import GuestSelector from "./components/guest";
+
 import Header from "./components/header";
 import Footer from "./components/footer";
 
