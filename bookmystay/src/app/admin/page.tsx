@@ -272,14 +272,34 @@ const AdminDashboard: React.FC = () => {
     nextHotelID: "",
   });
 
+  const [formData, setFormData] = useState({
+    hotelChain: "CH001",
+    category: 1,
+    address: "",
+    email: "",
+    roomID: "",
+    price: "",
+    capacity: "SINGLE",
+    view: "City View",
+    extendable: false,
+    roomHotel: "HTL00100",
+    customerID: "",
+    customerFirstName: "",
+    customerLastName: "",
+    customerAddress: "",
+    customerIDType: "DRIVING_LICENSE",
+    customerIDNumber: "",
+    date: new Date().toISOString(),
+    ssn: "",
+    employeeFirstName: "",
+    employeeLastName: "",
+    employeeAddress: "",
+    employeeRole: "Receptionist",
+    employeeHotelID: "HTL00100",
+  });
+
   // Create Chain
   const [formCentralOfficeAddress, setFormCentralOfficeAddress] = useState("");
-
-  // Create Hotel
-  const [formHotelChain, setFormHotelChain] = useState("CH001");
-  const [formCategory, setFormCategory] = useState(1);
-  const [formAddress, setFormAddress] = useState("");
-  const [formEmail, setFormEmail] = useState("");
 
   // Create Room
   const [formRoomID, setFormRoomID] = useState("");
@@ -560,9 +580,9 @@ const AdminDashboard: React.FC = () => {
       const nextNum = numPart + 1;  // Increment -> 111
   
       // Format the new ID with leading zeros
-      const nextChainID = `CH${String(nextNum).padStart(3, "0")}`;
+      const nextChain = `CH${String(nextNum).padStart(3, "0")}`;
   
-      setHotelChainData({...hotelChainData, nextChainID: nextChainID});  // Update the state
+      setHotelChainData({...hotelChainData, nextChainID: nextChain});  // Update the state
     } catch (error) {
       console.error("Error generating next chain ID:", error.message);
       throw error;
@@ -587,9 +607,8 @@ const AdminDashboard: React.FC = () => {
       const nextNum = numPart + 1;  // Increment -> 111
   
       // Format the new ID with leading zeros
-      const nextHotelID = `HTL${String(nextNum).padStart(5, "0")}`;
-  
-      setHotelChainData({...hotelChainData, nextHotelID: nextHotelID});  // Update the state
+      const nextHotel = `HTL${String(nextNum).padStart(5, "0")}`;
+      setHotelChainData({...hotelChainData, nextHotelID: nextHotel});  // Update the state
     } catch (error) {
       console.error("Error generating next Hotel ID:", error.message);
       throw error;
@@ -798,9 +817,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleNewHotel = async () => {
-    if (!formAddress || !formCategory || !formEmail || !formHotelChain || !hotelChainData.nextHotelID) {
+    if (!formData.address || !formData.category || !formData.email || !formData.hotelChain || !hotelChainData.nextHotelID) {
       alert("Please fill in all fields");
-      console.log(formAddress, formCategory, formEmail, formHotelChain, hotelChainData.nextHotelID)
+      console.log(formData.address, formData.category, formData.email, formData.hotelChain, hotelChainData.nextHotelID)
       return;
     }
   
@@ -809,7 +828,7 @@ const AdminDashboard: React.FC = () => {
     VALUES ($1, $2, $3, $4, $5, $6)
   `;
     
-    const values = [hotelChainData.nextHotelID, formHotelChain, formAddress, 1, formEmail, formCategory];
+    const values = [hotelChainData.nextHotelID, formData.hotelChain, formData.address, 1, formData.email, formData.category];
 
     try {
       const result = await runQuery(query, values);
@@ -2539,7 +2558,7 @@ const AdminDashboard: React.FC = () => {
                             Hotel Chain
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormHotelChain(e.target.value)}>
+                            onChange={(e) => setFormData({ ...formData, hotelChain: e.target.value })}>
                             {hotelIDs.map((chain) => (
                               <option key={chain} value={chain}>
                                 {chain}
@@ -2552,7 +2571,7 @@ const AdminDashboard: React.FC = () => {
                             Category
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormCategory(e.target.value)}>
+                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
                             <option value="1">1-star</option>
                             <option value="2">2-star</option>
                             <option value="3">3-star</option>
@@ -2567,7 +2586,7 @@ const AdminDashboard: React.FC = () => {
                           <input
                             type="text"
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            onChange={(e) => setFormAddress(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                           />
                         </div>
                         <div>
@@ -2575,7 +2594,7 @@ const AdminDashboard: React.FC = () => {
                             Email
                           </label>
                           <input
-                            onChange={(e) => setFormEmail(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             type="email"
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
