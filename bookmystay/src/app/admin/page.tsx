@@ -18,15 +18,6 @@ import {
   Trash2,
 } from "lucide-react";
 
-interface HotelChain {
-  id: number;
-  name: string;
-  hotels: number;
-  address: string;
-  email: string;
-  phone: string;
-}
-
 interface Hotel {
   id: number;
   name: string;
@@ -76,68 +67,6 @@ interface Booking {
   endDate: string;
   status: string;
 }
-
-interface Renting {
-  id: number;
-  bookingId: number;
-  employeeId: number;
-  checkInDate: string;
-  status: string;
-  paymentStatus: string;
-}
-
-interface AreaRooms {
-  area: string;
-  available: number;
-}
-
-interface HotelCapacity {
-  hotel: string;
-  totalCapacity: number;
-}
-
-const mockHotelChains: HotelChain[] = [
-  {
-    id: 1,
-    name: "Luxury Stays",
-    hotels: 12,
-    address: "123 Corporate Ave, New York, NY",
-    email: "info@luxurystays.com",
-    phone: "212-555-1234",
-  },
-  {
-    id: 2,
-    name: "ComfortInn Group",
-    hotels: 15,
-    address: "456 Business Blvd, Chicago, IL",
-    email: "contact@comfortinn.com",
-    phone: "312-555-6789",
-  },
-  {
-    id: 3,
-    name: "Royal Lodging",
-    hotels: 10,
-    address: "789 Executive Dr, Los Angeles, CA",
-    email: "support@royallodging.com",
-    phone: "213-555-4321",
-  },
-  {
-    id: 4,
-    name: "Grand Hotels",
-    hotels: 8,
-    address: "101 Plaza Ave, Miami, FL",
-    email: "info@grandhotels.com",
-    phone: "305-555-8765",
-  },
-  {
-    id: 5,
-    name: "Urban Retreats",
-    hotels: 9,
-    address: "567 City Rd, Seattle, WA",
-    email: "contact@urbanretreats.com",
-    phone: "206-555-9876",
-  },
-];
 
 const mockHotels: Hotel[] = [
   {
