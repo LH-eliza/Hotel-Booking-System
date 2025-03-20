@@ -107,42 +107,18 @@ const AdminDashboard: React.FC = () => {
   const [showBookingModal, setShowBookingModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<string>("");
 
-  // Add pagination state
-  const [view1Page, setView1Page] = useState(1);
-  const [view2Page, setView2Page] = useState(1);
+  // Add pagination state for each tab
+  const [hotelChainsPage, setHotelChainsPage] = useState(1);
+  const [hotelsPage, setHotelsPage] = useState(1);
+  const [roomsPage, setRoomsPage] = useState(1);
+  const [customersPage, setCustomersPage] = useState(1);
+  const [employeesPage, setEmployeesPage] = useState(1);
+  const [bookingsListPage, setBookingsListPage] = useState(1);
+  const [systemView1Page, setSystemView1Page] = useState(1);
+  const [systemView2Page, setSystemView2Page] = useState(1);
   const itemsPerPage = 10;
 
-  // Calculate pagination values for View 1
-  const view1TotalPages = Math.ceil(availableRoomsPerArea.length / itemsPerPage);
-  const view1StartIndex = (view1Page - 1) * itemsPerPage;
-  const view1EndIndex = view1StartIndex + itemsPerPage;
-  const view1CurrentItems = availableRoomsPerArea.slice(view1StartIndex, view1EndIndex);
-
-  // Calculate pagination values for View 2
-  const view2TotalPages = Math.ceil(hotelCapacity.length / itemsPerPage);
-  const view2StartIndex = (view2Page - 1) * itemsPerPage;
-  const view2EndIndex = view2StartIndex + itemsPerPage;
-  const view2CurrentItems = hotelCapacity.slice(view2StartIndex, view2EndIndex);
-
-  // Pagination handlers
-  const handleView1PrevPage = () => {
-    setView1Page(prev => Math.max(1, prev - 1));
-  };
-
-  const handleView1NextPage = () => {
-    setView1Page(prev => Math.min(view1TotalPages, prev + 1));
-  };
-
-  const handleView2PrevPage = () => {
-    setView2Page(prev => Math.max(1, prev - 1));
-  };
-
-  const handleView2NextPage = () => {
-    setView2Page(prev => Math.min(view2TotalPages, prev + 1));
-  };
-
-  // Add pagination state for available rooms
-  const [availableRoomsPage, setAvailableRoomsPage] = useState(1);
+  // Add room search and filter state
   const [roomSearchQuery, setRoomSearchQuery] = useState("");
   const [roomFilters, setRoomFilters] = useState({
     capacity: "",
@@ -150,6 +126,23 @@ const AdminDashboard: React.FC = () => {
     maxPrice: "",
     view: "",
   });
+
+  // Room search and filter handlers
+  const handleRoomSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRoomSearchQuery(e.target.value);
+    setAvailableRoomsPage(1); // Reset to first page when search changes
+  };
+
+  const handleRoomFilterChange = (key: string, value: string) => {
+    setRoomFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    setAvailableRoomsPage(1); // Reset to first page when filters change
+  };
+
+  // Available rooms pagination
+  const [availableRoomsPage, setAvailableRoomsPage] = useState(1);
 
   // Filter and paginate available rooms
   const filteredRooms = rooms.filter((room) => {
@@ -179,18 +172,83 @@ const AdminDashboard: React.FC = () => {
     setAvailableRoomsPage(prev => Math.min(availableRoomsTotalPages, prev + 1));
   };
 
-  const handleRoomSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRoomSearchQuery(e.target.value);
-    setAvailableRoomsPage(1); // Reset to first page when search changes
+  // Calculate pagination values for system views
+  const view1TotalPages = Math.ceil(availableRoomsPerArea.length / itemsPerPage);
+  const view1StartIndex = (systemView1Page - 1) * itemsPerPage;
+  const view1EndIndex = view1StartIndex + itemsPerPage;
+  const view1CurrentItems = availableRoomsPerArea.slice(view1StartIndex, view1EndIndex);
+
+  // Calculate pagination values for View 2
+  const view2TotalPages = Math.ceil(hotelCapacity.length / itemsPerPage);
+  const view2StartIndex = (systemView2Page - 1) * itemsPerPage;
+  const view2EndIndex = view2StartIndex + itemsPerPage;
+  const view2CurrentItems = hotelCapacity.slice(view2StartIndex, view2EndIndex);
+
+  // Calculate pagination for each tab
+  const getPageItems = <T,>(items: T[], currentPage: number) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return {
+      currentItems: items.slice(startIndex, endIndex),
+      totalPages: Math.ceil(items.length / itemsPerPage),
+      startIndex,
+      endIndex,
+      totalItems: items.length
+    };
   };
 
-  const handleRoomFilterChange = (key: string, value: string) => {
-    setRoomFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-    setAvailableRoomsPage(1); // Reset to first page when filters change
+  // Pagination handlers for system views
+  const handleView1PrevPage = () => {
+    setSystemView1Page(prev => Math.max(1, prev - 1));
   };
+
+  const handleView1NextPage = () => {
+    setSystemView1Page(prev => Math.min(view1TotalPages, prev + 1));
+  };
+
+  const handleView2PrevPage = () => {
+    setSystemView2Page(prev => Math.max(1, prev - 1));
+  };
+
+  const handleView2NextPage = () => {
+    setSystemView2Page(prev => Math.min(view2TotalPages, prev + 1));
+  };
+
+  // Pagination handlers for data management
+  const handlePageChange = (tab: string, increment: boolean) => {
+    switch (tab) {
+      case "hotelchains":
+        setHotelChainsPage(prev => increment ? prev + 1 : prev - 1);
+        break;
+      case "hotels":
+        setHotelsPage(prev => increment ? prev + 1 : prev - 1);
+        break;
+      case "rooms":
+        setRoomsPage(prev => increment ? prev + 1 : prev - 1);
+        break;
+      case "customers":
+        setCustomersPage(prev => increment ? prev + 1 : prev - 1);
+        break;
+      case "employees":
+        setEmployeesPage(prev => increment ? prev + 1 : prev - 1);
+        break;
+      case "bookings":
+        setBookingsListPage(prev => increment ? prev + 1 : prev - 1);
+        break;
+    }
+  };
+
+  // Reset pagination when changing tabs
+  useEffect(() => {
+    setHotelChainsPage(1);
+    setHotelsPage(1);
+    setRoomsPage(1);
+    setCustomersPage(1);
+    setEmployeesPage(1);
+    setBookingsListPage(1);
+    setSystemView1Page(1);
+    setSystemView2Page(1);
+  }, [activeTab]);
 
   const fetchHotelChainCount = async () => {
     try {
@@ -629,9 +687,9 @@ const AdminDashboard: React.FC = () => {
                       <div className="flex space-x-2">
                         <button
                           onClick={handleView1PrevPage}
-                          disabled={view1Page === 1}
+                          disabled={systemView1Page === 1}
                           className={`px-3 py-1 rounded ${
-                            view1Page === 1
+                            systemView1Page === 1
                               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
                           }`}
@@ -640,9 +698,9 @@ const AdminDashboard: React.FC = () => {
                         </button>
                         <button
                           onClick={handleView1NextPage}
-                          disabled={view1Page === view1TotalPages}
+                          disabled={systemView1Page === view1TotalPages}
                           className={`px-3 py-1 rounded ${
-                            view1Page === view1TotalPages
+                            systemView1Page === view1TotalPages
                               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
                           }`}
@@ -691,9 +749,9 @@ const AdminDashboard: React.FC = () => {
                       <div className="flex space-x-2">
                         <button
                           onClick={handleView2PrevPage}
-                          disabled={view2Page === 1}
+                          disabled={systemView2Page === 1}
                           className={`px-3 py-1 rounded ${
-                            view2Page === 1
+                            systemView2Page === 1
                               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
                           }`}
@@ -702,9 +760,9 @@ const AdminDashboard: React.FC = () => {
                         </button>
                         <button
                           onClick={handleView2NextPage}
-                          disabled={view2Page === view2TotalPages}
+                          disabled={systemView2Page === view2TotalPages}
                           className={`px-3 py-1 rounded ${
-                            view2Page === view2TotalPages
+                            systemView2Page === view2TotalPages
                               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
                           }`}
@@ -820,387 +878,578 @@ const AdminDashboard: React.FC = () => {
 
                 <div className="overflow-x-auto">
                   {activeTab === "hotelchains" && (
-                    <table className="min-w-full bg-white">
-                      <thead>
-                        <tr>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Chain ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Number of Hotels
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Central Office Address
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {hotelChains.map((chain) => (
-                          <tr key={chain.chain_id} className="hover:bg-gray-50">
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.chain_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.num_hotels}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {chain.central_office_address}
-                            </td>
-
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            </td>
+                    <>
+                      <table className="min-w-full bg-white">
+                        <thead>
+                          <tr>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Chain ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Number of Hotels
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Central Office Address
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {getPageItems(hotelChains, hotelChainsPage).currentItems.map((chain) => (
+                            <tr key={chain.chain_id} className="hover:bg-gray-50">
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {chain.chain_id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {chain.num_hotels}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {chain.central_office_address}
+                              </td>
+
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                <div className="flex space-x-2">
+                                  <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                    <Edit size={16} />
+                                  </button>
+                                  <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="mt-4 flex items-center justify-between px-4">
+                        <div className="text-sm text-gray-500">
+                          Showing {getPageItems(hotelChains, hotelChainsPage).startIndex + 1}-
+                          {Math.min(getPageItems(hotelChains, hotelChainsPage).endIndex, hotelChains.length)} of {hotelChains.length} entries
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handlePageChange("hotelchains", false)}
+                            disabled={hotelChainsPage === 1}
+                            className={`px-3 py-1 rounded ${
+                              hotelChainsPage === 1
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={() => handlePageChange("hotelchains", true)}
+                            disabled={hotelChainsPage === getPageItems(hotelChains, hotelChainsPage).totalPages}
+                            className={`px-3 py-1 rounded ${
+                              hotelChainsPage === getPageItems(hotelChains, hotelChainsPage).totalPages
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
 
                   {activeTab === "hotels" && (
-                    <table className="min-w-full bg-white">
-                      <thead>
-                        <tr>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Chain ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Hotel ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Address
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Number of Rooms
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Email
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Star Category
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {hotelRecords.map((hotel) => (
-                          <tr key={hotel.hotel_id} className="hover:bg-gray-50">
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.chain_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.hotel_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.address}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.num_rooms}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.contact_email}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotel.star_category}
-                            </td>
-
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            </td>
+                    <>
+                      <table className="min-w-full bg-white">
+                        <thead>
+                          <tr>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Chain ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Hotel ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Address
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Number of Rooms
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Email
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Star Category
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {getPageItems(hotelRecords, hotelsPage).currentItems.map((hotel) => (
+                            <tr key={hotel.hotel_id} className="hover:bg-gray-50">
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {hotel.chain_id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {hotel.hotel_id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {hotel.address}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {hotel.num_rooms}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {hotel.contact_email}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {hotel.star_category}
+                              </td>
+
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                <div className="flex space-x-2">
+                                  <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                    <Edit size={16} />
+                                  </button>
+                                  <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="mt-4 flex items-center justify-between px-4">
+                        <div className="text-sm text-gray-500">
+                          Showing {getPageItems(hotelRecords, hotelsPage).startIndex + 1}-
+                          {Math.min(getPageItems(hotelRecords, hotelsPage).endIndex, hotelRecords.length)} of {hotelRecords.length} entries
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handlePageChange("hotels", false)}
+                            disabled={hotelsPage === 1}
+                            className={`px-3 py-1 rounded ${
+                              hotelsPage === 1
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={() => handlePageChange("hotels", true)}
+                            disabled={hotelsPage === getPageItems(hotelRecords, hotelsPage).totalPages}
+                            className={`px-3 py-1 rounded ${
+                              hotelsPage === getPageItems(hotelRecords, hotelsPage).totalPages
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
 
                   {activeTab === "rooms" && (
-                    <table className="min-w-full bg-white">
-                      <thead>
-                        <tr>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Room ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Hotel ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Price
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Capacity
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            View
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Extendable
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rooms.map((room) => (
-                          <tr key={room.room_id} className="hover:bg-gray-50">
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.room_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {hotelRecords.find((h) => h.hotel_id === room.hotel_id)
-                                ?.hotel_id || ""}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.price}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.capacity}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.view}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.extendable ? "Yes" : "No"}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.status}
-                            </td>
-
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              <div className="flex space-x-2">
-                                <button className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs">
-                                  Book
-                                </button>
-                                <button className="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs">
-                                  Rent
-                                </button>
-                              </div>
-                            </td>
+                    <>
+                      <table className="min-w-full bg-white">
+                        <thead>
+                          <tr>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Room ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Hotel ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Price
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Capacity
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              View
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Extendable
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {getPageItems(rooms, roomsPage).currentItems.map((room) => (
+                            <tr key={room.room_id} className="hover:bg-gray-50">
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.room_id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {hotelRecords.find((h) => h.hotel_id === room.hotel_id)
+                                  ?.hotel_id || ""}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.price}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.capacity}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.view}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.extendable ? "Yes" : "No"}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.status}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                <div className="flex space-x-2">
+                                  <button className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs">
+                                    Book
+                                  </button>
+                                  <button className="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs">
+                                    Rent
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="mt-4 flex items-center justify-between px-4">
+                        <div className="text-sm text-gray-500">
+                          Showing {getPageItems(rooms, roomsPage).startIndex + 1}-
+                          {Math.min(getPageItems(rooms, roomsPage).endIndex, rooms.length)} of {rooms.length} entries
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handlePageChange("rooms", false)}
+                            disabled={roomsPage === 1}
+                            className={`px-3 py-1 rounded ${
+                              roomsPage === 1
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={() => handlePageChange("rooms", true)}
+                            disabled={roomsPage === getPageItems(rooms, roomsPage).totalPages}
+                            className={`px-3 py-1 rounded ${
+                              roomsPage === getPageItems(rooms, roomsPage).totalPages
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
 
                   {activeTab === "customers" && (
-                    <table className="min-w-full bg-white">
-                      <thead>
-                        <tr>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Customer ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            First name
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Last name
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Address
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            ID Type
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            ID Number
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Registration Date
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {customers.map((customer) => (
-                          <tr
-                            key={customer.customer_id}
-                            className="hover:bg-gray-50"
-                          >
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {customer.customer_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {customer.first_name}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {customer.last_name}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {customer.address}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {customer.id_type}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {customer.id_number}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {customer.registration_date}
-                            </td>
-
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            </td>
+                    <>
+                      <table className="min-w-full bg-white">
+                        <thead>
+                          <tr>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Customer ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              First name
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Last name
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Address
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              ID Type
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              ID Number
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Registration Date
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {getPageItems(customers, customersPage).currentItems.map((customer) => (
+                            <tr
+                              key={customer.customer_id}
+                              className="hover:bg-gray-50"
+                            >
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {customer.customer_id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {customer.first_name}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {customer.last_name}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {customer.address}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {customer.id_type}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {customer.id_number}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {customer.registration_date}
+                              </td>
+
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                <div className="flex space-x-2">
+                                  <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                    <Edit size={16} />
+                                  </button>
+                                  <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="mt-4 flex items-center justify-between px-4">
+                        <div className="text-sm text-gray-500">
+                          Showing {getPageItems(customers, customersPage).startIndex + 1}-
+                          {Math.min(getPageItems(customers, customersPage).endIndex, customers.length)} of {customers.length} entries
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handlePageChange("customers", false)}
+                            disabled={customersPage === 1}
+                            className={`px-3 py-1 rounded ${
+                              customersPage === 1
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={() => handlePageChange("customers", true)}
+                            disabled={customersPage === getPageItems(customers, customersPage).totalPages}
+                            className={`px-3 py-1 rounded ${
+                              customersPage === getPageItems(customers, customersPage).totalPages
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
 
                   {activeTab === "employees" && (
-                    <table className="min-w-full bg-white">
-                      <thead>
-                        <tr>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            SSN
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Hotel ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            First Name
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Last Name
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Address
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Role
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {employees.map((employee) => (
-                          <tr key={employee.ssn} className="hover:bg-gray-50">
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {employee.ssn}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {employee.hotel_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {employee.first_name}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {employee.last_name}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {employee.address}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {employee.role}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            </td>
+                    <>
+                      <table className="min-w-full bg-white">
+                        <thead>
+                          <tr>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              SSN
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Hotel ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              First Name
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Last Name
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Address
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Role
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {getPageItems(employees, employeesPage).currentItems.map((employee) => (
+                            <tr key={employee.ssn} className="hover:bg-gray-50">
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {employee.ssn}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {employee.hotel_id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {employee.first_name}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {employee.last_name}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {employee.address}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {employee.role}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                <div className="flex space-x-2">
+                                  <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                    <Edit size={16} />
+                                  </button>
+                                  <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="mt-4 flex items-center justify-between px-4">
+                        <div className="text-sm text-gray-500">
+                          Showing {getPageItems(employees, employeesPage).startIndex + 1}-
+                          {Math.min(getPageItems(employees, employeesPage).endIndex, employees.length)} of {employees.length} entries
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handlePageChange("employees", false)}
+                            disabled={employeesPage === 1}
+                            className={`px-3 py-1 rounded ${
+                              employeesPage === 1
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={() => handlePageChange("employees", true)}
+                            disabled={employeesPage === getPageItems(employees, employeesPage).totalPages}
+                            className={`px-3 py-1 rounded ${
+                              employeesPage === getPageItems(employees, employeesPage).totalPages
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
 
                   {activeTab === "bookings" && (
-                    <table className="min-w-full bg-white">
-                      <thead>
-                        <tr>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Booking ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Customer ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Start Date
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            End Date
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Room ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bookingsList.map((booking) => (
-                          <tr
-                            key={booking.booking_id}
-                            className="hover:bg-gray-50"
-                          >
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {booking.booking_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {booking.customer_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {booking.start_date}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {booking.end_date}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {booking.room_id}
-                            </td>
-
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            </td>
+                    <>
+                      <table className="min-w-full bg-white">
+                        <thead>
+                          <tr>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Booking ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Customer ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Start Date
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              End Date
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Room ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {getPageItems(bookingsList, bookingsListPage).currentItems.map((booking) => (
+                            <tr
+                              key={booking.booking_id}
+                              className="hover:bg-gray-50"
+                            >
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {booking.booking_id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {booking.customer_id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {booking.start_date}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {booking.end_date}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {booking.room_id}
+                              </td>
+
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                <div className="flex space-x-2">
+                                  <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                    <Edit size={16} />
+                                  </button>
+                                  <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="mt-4 flex items-center justify-between px-4">
+                        <div className="text-sm text-gray-500">
+                          Showing {getPageItems(bookingsList, bookingsListPage).startIndex + 1}-
+                          {Math.min(getPageItems(bookingsList, bookingsListPage).endIndex, bookingsList.length)} of {bookingsList.length} entries
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handlePageChange("bookings", false)}
+                            disabled={bookingsListPage === 1}
+                            className={`px-3 py-1 rounded ${
+                              bookingsListPage === 1
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={() => handlePageChange("bookings", true)}
+                            disabled={bookingsListPage === getPageItems(bookingsList, bookingsListPage).totalPages}
+                            className={`px-3 py-1 rounded ${
+                              bookingsListPage === getPageItems(bookingsList, bookingsListPage).totalPages
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
