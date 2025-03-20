@@ -228,15 +228,6 @@ const AdminDashboard: React.FC = () => {
     centralOfficeAddress: "",
   });
 
-  // Create Customer
-  const [formCustomerID, setFormCustomerID] = useState("");
-  const [formCustomerFirstName, setFormCustomerFirstName] = useState("");
-  const [formCustomerLastName, setFormCustomerLastName] = useState("");
-  const [formCustomerAddress, setFormCustomerAddress] = useState("");
-  const [formCustomerIDType, setFormCustomerIDType] = useState("DRIVING_LICENSE");
-  const [formCustomerIDNumber, setFormCustomerIDNumber] = useState("");
-  const date = new Date().toISOString();
-
   // Create Employee
   const [formSSN, setFormSSN] = useState("");
   const [formHotelID, setFormHotelID] = useState("HTL00100");
@@ -614,9 +605,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleNewCustomer = async () => {
-    if (!formCustomerID || !formCustomerFirstName || !formCustomerLastName || !formCustomerAddress || !formCustomerIDType || !formCustomerIDNumber) {
+    if (!formData.customerID || !formData.customerFirstName || !formData.customerLastName || !formData.customerAddress || !formData.customerIDType || !formData.customerIDNumber) {
       alert("Please fill in all fields");
-      console.log(formCustomerID, formCustomerFirstName, formCustomerLastName, formCustomerAddress, formCustomerIDType, formCustomerIDNumber)
+      console.log(formData.customerID, formData.customerFirstName, formData.customerLastName, formData.customerAddress, formData.customerIDType, formData.customerIDNumber)
       return;
     }
   
@@ -625,7 +616,7 @@ const AdminDashboard: React.FC = () => {
     VALUES ($1, $2, $3, $4, $5, $6, $7)
   `;
     
-    const values = [formCustomerID, formCustomerFirstName, formCustomerLastName, formCustomerAddress, formCustomerIDType, formCustomerIDNumber, date];
+    const values = [formData.customerID, formData.customerFirstName, formData.customerLastName, formData.customerAddress, formData.customerIDType, formData.customerIDNumber, formData.date];
 
     try {
       const result = await runQuery(query, values);
@@ -2636,7 +2627,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerID(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, customerID: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2646,7 +2637,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerFirstName(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, customerFirstName: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2656,7 +2647,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerLastName(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, customerLastName: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2666,7 +2657,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerAddress(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, customerAddress: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
@@ -2675,7 +2666,8 @@ const AdminDashboard: React.FC = () => {
                             ID Type
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setFormCustomerIDType(e.target.value)}>
+                          onChange={(e) => setFormData({ ...formData, customerIDType: e.target.value })}
+                          >
                             <option value="DRIVING_LICENSE">Driver License</option>
                             <option value="SIN">SIN</option>
                             <option value="SSN">SSN</option>
@@ -2687,7 +2679,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCustomerIDNumber(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, customerIDNumber: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
