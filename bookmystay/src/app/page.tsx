@@ -13,68 +13,45 @@ interface DateRange {
   startDate: string;
   endDate: string;
 }
-
-interface Room {
-  id: number;
-  name: string;
-  adults: number;
-  children: number;
-}
-
-interface GuestData {
-  rooms: Room[];
-  displayText: string;
-}
-
 interface SearchFormData {
   dates: DateRange | null;
   hotel: string;
   destination: string;
-  guests: GuestData | null;
+  capacity: string;
 }
-
-// Sample data for dropdowns
-// const HOTELS: string[] = [
-//   "Westin",
-//   "Hilton",
-//   "Marriott",
-//   "Four Seasons",
-//   "Hyatt",
-//   "Ritz-Carlton",
-// ];
-
-// const DESTINATIONS: string[] = [
-//   'Centretown', 'The Glebe', 'Byward Market', 'Rockcliffe Park', 'Westboro', 'Old Ottawa East',
-//   'Orleans', 'Kanata', 'Barrhaven', 'Nepean', 'Manotick', 'Stittsville', 'New Edinburgh',
-//   'Sandy Hill', 'Carleton Heights', 'Carp', 'Alta Vista', 'Little Italy', 'Overbrook', 'Cumberland'
-// ];
 
 const HotelSearchPage: React.FC = () => {
   const [destinations, setDestinations] = useState([]);
   const [hotels, setHotels] = useState([]);
-  const [query, setQuery] = useState("SELECT * FROM Customer"); // State to hold the query string
-  const [data, setData] = useState(null); // State to hold the API response
-  const [error, setError] = useState(""); // State to hold any errors
+  const [roomCapacity, setRoomCapacity] = useState([]);
+  const [query, setQuery] = useState("SELECT * FROM Customer"); 
+  const [data, setData] = useState(null); 
+  const [error, setError] = useState(""); 
   const router = useRouter();
 
   useEffect(() => {
     fetchNeighborhoods();
     fetchHotelChainID();
-    fetchData(); // Fetch data when the component mounts
-  }, [query]); // Re-fetch data when the query state changes
+    fetchData(); 
+    fetchRoomCapacity();
+  }, [query]); 
 
   const fetchNeighborhoods = async () => {
     try {
       const response = await fetch("/api/destinations");
       if (response.ok) {
         const data = await response.json();
-        setDestinations(data); // Store the destinations from the response
+        setDestinations(data);
       } else {
         throw new Error("Failed to fetch destinations");
       }
     } catch (error) {
-      console.log(error.message);
-      setError(error.message);
+      if (error instanceof Error) {
+        console.log(error.message);
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 
@@ -83,13 +60,35 @@ const HotelSearchPage: React.FC = () => {
       const response = await fetch("/api/hotel_chain");
       if (response.ok) {
         const data = await response.json();
-        setHotels(data); // Store the hotel ids from the response
+        setHotels(data); 
       } else {
         throw new Error("Failed to fetch hotel ids");
       }
     } catch (error) {
-      console.log(error.message);
-      setError(error.message);
+      if (error instanceof Error) {
+        console.log(error.message);
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred');
+      }
+    }
+  };
+  const fetchRoomCapacity = async () => {
+    try {
+      const response = await fetch("/api/room_capacity");
+      if (response.ok) {
+        const data = await response.json();
+        setRoomCapacity(data); 
+      } else {
+        throw new Error("Failed to fetch rooms");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 
@@ -100,20 +99,23 @@ const HotelSearchPage: React.FC = () => {
     }
 
     try {
-      // Send the query to the backend via GET request
       const response = await fetch(
         `/api/data?query=${encodeURIComponent(query)}`
       );
 
       if (response.ok) {
         const jsonData = await response.json();
-        setData(jsonData); // Store the data in state
-        setError(""); // Clear any previous errors
+        setData(jsonData); 
+        setError("");
       } else {
         throw new Error("Failed to fetch data");
       }
-    } catch (error) {
-      setError(error.message); // Set the error message
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message); 
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 
@@ -121,23 +123,15 @@ const HotelSearchPage: React.FC = () => {
     dates: null,
     hotel: "",
     destination: "",
-    guests: null,
+    capacity: "",
   });
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleDateSelect = (dateRange: DateRange): void => {
     setFormData((prev) => ({
       ...prev,
       dates: dateRange,
-    }));
-  };
-
-  const handleGuestSelect = (guestData: GuestData): void => {
-    setFormData((prev) => ({
-      ...prev,
-      guests: guestData,
     }));
   };
 
@@ -151,10 +145,9 @@ const HotelSearchPage: React.FC = () => {
 
   const toggleDateDropdown = (): void => {
     toggleDropdown("dates");
-    // You may need to add logic here to open/close your date picker component
   };
 
-  const selectOption = (name: "hotel" | "destination", value: string): void => {
+  const selectOption = (name: "hotel" | "destination" | "capacity", value: string): void => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -164,17 +157,14 @@ const HotelSearchPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-
-    // Construct query parameters from formData
     const query = new URLSearchParams({
       startDate: formData.dates?.startDate || "",
       endDate: formData.dates?.endDate || "",
       hotel: formData.hotel || "",
       destination: formData.destination || "",
-      guests: JSON.stringify(formData.guests || {}),
+      capacity: formData.capacity || "",
     }).toString();
 
-    // Navigate to the /booking page with query parameters
     router.push(`/booking?${query}`);
   };
 
@@ -245,7 +235,7 @@ const HotelSearchPage: React.FC = () => {
               {/* Destination Dropdown */}
               <div className="flex-1 px-3 border-l border-gray-200">
                 <label className="block text-xs text-gray-500 mb-1">
-                  NEIGHBORHOOD
+                  NEIGHBOURHOOD
                 </label>
                 <div className="relative">
                   <button
@@ -281,16 +271,39 @@ const HotelSearchPage: React.FC = () => {
                   )}
                 </div>
               </div>
-
               {/* CAPACITY Dropdown */}
               <div className="flex-1 px-3 border-l border-gray-200">
                 <label className="block text-xs text-gray-500 mb-1">
                   CAPACITY
                 </label>
                 <div className="relative">
-                  <div className="w-full cursor-pointer">
-                    <GuestSelector onSelect={handleGuestSelect} />
-                  </div>
+                  <button
+                    type="button" 
+                    className="w-full text-left text-sm flex items-center justify-between focus:outline-none cursor-pointer"
+                    onClick={() => toggleDropdown("capacity")}
+                  >
+                    <span>{formData.capacity || "Select Capacity"}</span>
+                    <ChevronDown
+                      size={16}
+                      className={`ml-2 transition-transform duration-200 ${
+                        openDropdown === "capacity" ? "transform rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {openDropdown === "capacity" && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
+                      {roomCapacity.map((capacity) => (
+                        <div
+                          key={capacity}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                          onClick={() => selectOption("capacity", capacity)}
+                        >
+                          {capacity}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -409,7 +422,7 @@ const HotelSearchPage: React.FC = () => {
                   </label>
                   <div className="relative">
                     <div className="w-full cursor-pointer">
-                      <GuestSelector onSelect={handleGuestSelect} />
+                      <span>{formData.capacity || "Select Capacity"}</span>
                     </div>
                   </div>
                 </div>
