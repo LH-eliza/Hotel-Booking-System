@@ -1146,14 +1146,6 @@ const AdminDashboard: React.FC = () => {
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">e-Hotels Admin Dashboard</h1>
             <div className="flex items-center space-x-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="bg-blue-600 text-white placeholder-blue-300 border border-blue-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                <Search className="absolute right-3 top-2.5 h-5 w-5 text-blue-300" />
-              </div>
               <div className="flex items-center">
                 <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
                   A
