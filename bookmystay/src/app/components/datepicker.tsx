@@ -1,4 +1,4 @@
-import React, { JSX, useState } from "react";
+import React, { JSX, useState, useEffect } from "react";
 
 interface DateRange {
   startDate: string;
@@ -13,16 +13,25 @@ interface MonthData {
 
 interface SimpleDatePickerProps {
   onDateChange: (dateRange: DateRange) => void;
+  initialDateRange?: DateRange;
 }
 
 const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
   onDateChange,
+  initialDateRange,
 }) => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [dateRange, setDateRange] = useState<DateRange>({
     startDate: "",
     endDate: "",
   });
+
+  // Initialize date range from props if provided
+  useEffect(() => {
+    if (initialDateRange?.startDate && initialDateRange?.endDate) {
+      setDateRange(initialDateRange);
+    }
+  }, [initialDateRange]);
 
   const today = new Date();
   const currentMonth = today.getMonth();
