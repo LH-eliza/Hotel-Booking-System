@@ -266,9 +266,6 @@ const mockBookings: Booking[] = [
 ];
 
 const AdminDashboard: React.FC = () => {
-  const [nextChainID, setNextChainID] = useState("");
-  const [nextHotelID, setNextHotelID] = useState("");
-
   const [hotelChainData, setHotelChainData] = useState({
     hotelChains: [],
     nextChainID: "",
@@ -565,8 +562,7 @@ const AdminDashboard: React.FC = () => {
       // Format the new ID with leading zeros
       const nextChainID = `CH${String(nextNum).padStart(3, "0")}`;
   
-      console.log(`Next Chain ID: ${nextChainID}`);
-      setNextChainID(nextChainID);  // Update the state  
+      setHotelChainData({...hotelChainData, nextChainID: nextChainID});  // Update the state
     } catch (error) {
       console.error("Error generating next chain ID:", error.message);
       throw error;
@@ -593,8 +589,7 @@ const AdminDashboard: React.FC = () => {
       // Format the new ID with leading zeros
       const nextHotelID = `HTL${String(nextNum).padStart(5, "0")}`;
   
-      console.log(`Next Hotel ID: ${nextHotelID}`);
-      setNextHotelID(nextHotelID);  // Update the state  
+      setHotelChainData({...hotelChainData, nextHotelID: nextHotelID});  // Update the state
     } catch (error) {
       console.error("Error generating next Hotel ID:", error.message);
       throw error;
@@ -778,7 +773,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleNewChain = async () => {
-    if (!formCentralOfficeAddress || !nextChainID) {
+    if (!formCentralOfficeAddress || !hotelChainData.nextChainID) {
       alert("Please fill in all fields");
       return;
     }
@@ -788,7 +783,7 @@ const AdminDashboard: React.FC = () => {
     VALUES ($1, $2, $3)
   `;
     
-    const values = [nextChainID, 1, formCentralOfficeAddress];
+    const values = [hotelChainData.nextChainID, 1, formCentralOfficeAddress];
 
     try {
       const result = await runQuery(query, values);
@@ -803,9 +798,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleNewHotel = async () => {
-    if (!formAddress || !formCategory || !formEmail || !formHotelChain || !nextHotelID) {
+    if (!formAddress || !formCategory || !formEmail || !formHotelChain || !hotelChainData.nextHotelID) {
       alert("Please fill in all fields");
-      console.log(formAddress, formCategory, formEmail, formHotelChain, nextHotelID)
+      console.log(formAddress, formCategory, formEmail, formHotelChain, hotelChainData.nextHotelID)
       return;
     }
   
@@ -814,7 +809,7 @@ const AdminDashboard: React.FC = () => {
     VALUES ($1, $2, $3, $4, $5, $6)
   `;
     
-    const values = [nextHotelID, formHotelChain, formAddress, 1, formEmail, formCategory];
+    const values = [hotelChainData.nextHotelID, formHotelChain, formAddress, 1, formEmail, formCategory];
 
     try {
       const result = await runQuery(query, values);
@@ -2497,7 +2492,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            value={nextChainID}
+                            value={hotelChainData.nextChainID}
                             disabled
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
@@ -2534,7 +2529,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            value={nextHotelID}
+                            value={hotelChainData.nextHotelID}
                             disabled
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
