@@ -266,9 +266,14 @@ const mockBookings: Booking[] = [
 ];
 
 const AdminDashboard: React.FC = () => {
-  const [hotelChains, setHotelChains] = useState([]);
   const [nextChainID, setNextChainID] = useState("");
   const [nextHotelID, setNextHotelID] = useState("");
+
+  const [hotelChainData, setHotelChainData] = useState({
+    hotelChains: [],
+    nextChainID: "",
+    nextHotelID: "",
+  });
 
   // Create Chain
   const [formCentralOfficeAddress, setFormCentralOfficeAddress] = useState("");
@@ -1059,7 +1064,7 @@ const AdminDashboard: React.FC = () => {
       const response = await fetch("/api/getHotelChains");  // Correct route
       if (response.ok) {
         const data = await response.json();
-        setHotelChains(data);
+        setHotelChainData({...hotelChainData,hotelChains: data})
       } else {
         throw new Error("Failed to fetch row count");
       }
@@ -1515,7 +1520,7 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {hotelChains.map((chain) => (
+                        {hotelChainData.hotelChains.map((chain) => (
                           <tr key={chain.chain_id} className="hover:bg-gray-50">
                             <td className="py-3 px-4 border-b border-gray-200">
                               {chain.chain_id}
