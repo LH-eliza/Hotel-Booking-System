@@ -568,18 +568,6 @@ const AdminDashboard: React.FC = () => {
                     <span>Rentings</span>
                   </Link>
                 </li>
-                <li className="px-6 py-3 hover:bg-gray-100">
-                  <Link href="#" className="flex items-center">
-                    <FileText className="h-5 w-5 mr-3" />
-                    <span>Reports</span>
-                  </Link>
-                </li>
-                <li className="px-6 py-3 hover:bg-gray-100">
-                  <Link href="#" className="flex items-center">
-                    <Settings className="h-5 w-5 mr-3" />
-                    <span>Settings</span>
-                  </Link>
-                </li>
               </ul>
             </nav>
           </div>
