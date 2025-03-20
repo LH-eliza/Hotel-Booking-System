@@ -225,10 +225,8 @@ const AdminDashboard: React.FC = () => {
     employeeAddress: "",
     employeeRole: "Receptionist",
     employeeHotelID: "HTL00100",
+    centralOfficeAddress: "",
   });
-
-  // Create Chain
-  const [formCentralOfficeAddress, setFormCentralOfficeAddress] = useState("");
 
   // Create Customer
   const [formCustomerID, setFormCustomerID] = useState("");
@@ -713,7 +711,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleNewChain = async () => {
-    if (!formCentralOfficeAddress || !hotelChainData.nextChainID) {
+    if (!formData.centralOfficeAddress || !hotelChainData.nextChainID) {
       alert("Please fill in all fields");
       return;
     }
@@ -723,7 +721,7 @@ const AdminDashboard: React.FC = () => {
     VALUES ($1, $2, $3)
   `;
     
-    const values = [hotelChainData.nextChainID, 1, formCentralOfficeAddress];
+    const values = [hotelChainData.nextChainID, 1, formData.centralOfficeAddress];
 
     try {
       const result = await runQuery(query, values);
@@ -2443,7 +2441,7 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            onChange={(e) => setFormCentralOfficeAddress(e.target.value)}
+                            onChange={(e) => setFormData({ ...formData, centralOfficeAddress: e.target.value })}
                             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                           />
                         </div>
