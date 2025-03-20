@@ -18,63 +18,66 @@ import {
   Trash2,
 } from "lucide-react";
 
+interface AreaRooms {
+  area: string;
+  available_rooms: number;
+}
+
+interface HotelCapacity {
+  hotel_id: string;
+  total_capacity: number;
+}
+
 interface HotelChain {
-  id: number;
-  name: string;
-  hotels: number;
-  address: string;
-  email: string;
-  phone: string;
+  chain_id: string;
+  num_hotels: number;
+  central_office_address: string;
 }
 
 interface Hotel {
-  id: number;
-  name: string;
-  chain: string;
-  category: string;
-  rooms: number;
+  hotel_id: string;
+  chain_id: string;
   address: string;
-  email: string;
-  phone: string;
+  num_rooms: number;
+  contact_email: string;
+  star_category: string;
 }
 
 interface Room {
-  id: number;
-  hotelId: number;
-  number: string;
+  room_id: string;
+  hotel_id: string;
   price: number;
   capacity: string;
-  amenities: string;
   view: string;
   extendable: boolean;
-  issues: string;
+  status: string;
 }
 
 interface Customer {
-  id: number;
-  name: string;
+  customer_id: string;
+  first_name: string;
+  last_name: string;
   address: string;
-  idType: string;
-  idNumber: string;
-  regDate: string;
+  id_type: string;
+  id_number: string;
+  registration_date: string;
 }
 
 interface Employee {
-  id: number;
-  name: string;
-  address: string;
   ssn: string;
-  hotel: string;
-  position: string;
+  hotel_id: string;
+  first_name: string;
+  last_name: string;
+  address: string;
+  role: string;
 }
 
 interface Booking {
-  id: number;
-  customerId: number;
-  roomId: number;
-  startDate: string;
-  endDate: string;
-  status: string;
+  booking_id: string;
+  customer_id: string;
+  start_date: string;
+  end_date: string;
+  room_id: string;
 }
 
 interface Renting {
@@ -86,250 +89,56 @@ interface Renting {
   paymentStatus: string;
 }
 
-interface AreaRooms {
-  area: string;
-  available: number;
-}
-
-interface HotelCapacity {
-  hotel: string;
-  totalCapacity: number;
-}
-
-const mockHotelChains: HotelChain[] = [
-  {
-    id: 1,
-    name: "Luxury Stays",
-    hotels: 12,
-    address: "123 Corporate Ave, New York, NY",
-    email: "info@luxurystays.com",
-    phone: "212-555-1234",
-  },
-  {
-    id: 2,
-    name: "ComfortInn Group",
-    hotels: 15,
-    address: "456 Business Blvd, Chicago, IL",
-    email: "contact@comfortinn.com",
-    phone: "312-555-6789",
-  },
-  {
-    id: 3,
-    name: "Royal Lodging",
-    hotels: 10,
-    address: "789 Executive Dr, Los Angeles, CA",
-    email: "support@royallodging.com",
-    phone: "213-555-4321",
-  },
-  {
-    id: 4,
-    name: "Grand Hotels",
-    hotels: 8,
-    address: "101 Plaza Ave, Miami, FL",
-    email: "info@grandhotels.com",
-    phone: "305-555-8765",
-  },
-  {
-    id: 5,
-    name: "Urban Retreats",
-    hotels: 9,
-    address: "567 City Rd, Seattle, WA",
-    email: "contact@urbanretreats.com",
-    phone: "206-555-9876",
-  },
-];
-
-const mockHotels: Hotel[] = [
-  {
-    id: 101,
-    name: "Luxury Stays Downtown",
-    chain: "Luxury Stays",
-    category: "5-star",
-    rooms: 120,
-    address: "789 Main St, New York, NY",
-    email: "downtown@luxurystays.com",
-    phone: "212-555-2345",
-  },
-  {
-    id: 102,
-    name: "Luxury Stays Central Park",
-    chain: "Luxury Stays",
-    category: "4-star",
-    rooms: 95,
-    address: "456 Park Ave, New York, NY",
-    email: "centralpark@luxurystays.com",
-    phone: "212-555-3456",
-  },
-  {
-    id: 201,
-    name: "ComfortInn Lakeview",
-    chain: "ComfortInn Group",
-    category: "3-star",
-    rooms: 85,
-    address: "123 Lake Dr, Chicago, IL",
-    email: "lakeview@comfortinn.com",
-    phone: "312-555-7890",
-  },
-];
-
-const mockRooms: Room[] = [
-  {
-    id: 10101,
-    hotelId: 101,
-    number: "101",
-    price: 350,
-    capacity: "double",
-    amenities: "TV, AC, fridge, wifi",
-    view: "sea",
-    extendable: true,
-    issues: "None",
-  },
-  {
-    id: 10102,
-    hotelId: 101,
-    number: "102",
-    price: 275,
-    capacity: "single",
-    amenities: "TV, AC, wifi",
-    view: "city",
-    extendable: false,
-    issues: "None",
-  },
-  {
-    id: 10103,
-    hotelId: 101,
-    number: "103",
-    price: 400,
-    capacity: "double",
-    amenities: "TV, AC, fridge, minibar, wifi",
-    view: "sea",
-    extendable: true,
-    issues: "Minor plumbing issue",
-  },
-];
-
-const mockCustomers: Customer[] = [
-  {
-    id: 1001,
-    name: "John Smith",
-    address: "123 Maple St, Boston, MA",
-    idType: "SSN",
-    idNumber: "XXX-XX-1234",
-    regDate: "2024-01-15",
-  },
-  {
-    id: 1002,
-    name: "Emily Johnson",
-    address: "456 Oak Ave, Miami, FL",
-    idType: "Driving License",
-    idNumber: "FL12345678",
-    regDate: "2024-02-10",
-  },
-];
-
-const mockEmployees: Employee[] = [
-  {
-    id: 2001,
-    name: "Michael Brown",
-    address: "789 Pine Rd, New York, NY",
-    ssn: "XXX-XX-5678",
-    hotel: "Luxury Stays Downtown",
-    position: "Manager",
-  },
-  {
-    id: 2002,
-    name: "Sarah Davis",
-    address: "321 Cedar St, New York, NY",
-    ssn: "XXX-XX-8765",
-    hotel: "Luxury Stays Downtown",
-    position: "Receptionist",
-  },
-];
-
-const mockBookings: Booking[] = [
-  {
-    id: 3001,
-    customerId: 1001,
-    roomId: 10101,
-    startDate: "2025-04-01",
-    endDate: "2025-04-05",
-    status: "Confirmed",
-  },
-  {
-    id: 3002,
-    customerId: 1002,
-    roomId: 10103,
-    startDate: "2025-03-25",
-    endDate: "2025-03-30",
-    status: "Confirmed",
-  },
-];
-
-const mockRentings: Renting[] = [
-  {
-    id: 4001,
-    bookingId: 3001,
-    employeeId: 2002,
-    checkInDate: "2025-04-01",
-    status: "Checked In",
-    paymentStatus: "Paid",
-  },
-];
-
-// Available rooms data for View 1
-const mockAvailableRooms: AreaRooms[] = [
-  { area: "New York, NY", available: 45 },
-  { area: "Chicago, IL", available: 32 },
-  { area: "Los Angeles, CA", available: 27 },
-  { area: "Miami, FL", available: 38 },
-  { area: "Seattle, WA", available: 22 },
-];
-
-// Room capacity data for View 2
-const mockRoomCapacity: HotelCapacity[] = [
-  { hotel: "Luxury Stays Downtown", totalCapacity: 240 },
-  { hotel: "Luxury Stays Central Park", totalCapacity: 185 },
-  { hotel: "ComfortInn Lakeview", totalCapacity: 150 },
-];
-
 const AdminDashboard: React.FC = () => {
-  const [hotelChains, setHotelChains] = useState([]);
-  const [rooms, setRooms] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [bookingsList, setBookingsList] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [hotelRecords, setHotelRecords] = useState([]);
+  const [hotelChains, setHotelChains] = useState<HotelChain[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [bookingsList, setBookingsList] = useState<Booking[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [hotelRecords, setHotelRecords] = useState<Hotel[]>([]);
   const [hotelChainCount, setHotelChainCount] = useState("...");
   const [hotelCount, setHotelCount] = useState("...");
   const [customerCount, setCustomerCount] = useState("...");
   const [bookings, setBookings] = useState("...");
-  const [hotelCapacity, setHotelCapacity] = useState([]);
-  const [availableRoomsPerArea, setAvailableRoomsPerArea] = useState([]);
+  const [hotelCapacity, setHotelCapacity] = useState<HotelCapacity[]>([]);
+  const [availableRoomsPerArea, setAvailableRoomsPerArea] = useState<AreaRooms[]>([]);
   const [activeTab, setActiveTab] = useState<string>("hotelchains");
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showBookingModal, setShowBookingModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState(1);
+
+  // Add pagination state
+  const [view1Page, setView1Page] = useState(1);
+  const [view2Page, setView2Page] = useState(1);
   const itemsPerPage = 10;
 
-  // Calculate the paginated data
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentRooms = rooms.slice(indexOfFirstItem, indexOfLastItem);
+  // Calculate pagination values for View 1
+  const view1TotalPages = Math.ceil(availableRoomsPerArea.length / itemsPerPage);
+  const view1StartIndex = (view1Page - 1) * itemsPerPage;
+  const view1EndIndex = view1StartIndex + itemsPerPage;
+  const view1CurrentItems = availableRoomsPerArea.slice(view1StartIndex, view1EndIndex);
 
-  // Calculate total pages
-  const totalPages = Math.ceil(rooms.length / itemsPerPage);
+  // Calculate pagination values for View 2
+  const view2TotalPages = Math.ceil(hotelCapacity.length / itemsPerPage);
+  const view2StartIndex = (view2Page - 1) * itemsPerPage;
+  const view2EndIndex = view2StartIndex + itemsPerPage;
+  const view2CurrentItems = hotelCapacity.slice(view2StartIndex, view2EndIndex);
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+  // Pagination handlers
+  const handleView1PrevPage = () => {
+    setView1Page(prev => Math.max(1, prev - 1));
   };
 
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+  const handleView1NextPage = () => {
+    setView1Page(prev => Math.min(view1TotalPages, prev + 1));
+  };
+
+  const handleView2PrevPage = () => {
+    setView2Page(prev => Math.max(1, prev - 1));
+  };
+
+  const handleView2NextPage = () => {
+    setView2Page(prev => Math.min(view2TotalPages, prev + 1));
   };
 
   const fetchHotelChainCount = async () => {
@@ -750,7 +559,7 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {availableRoomsPerArea.map((item, index) => (
+                        {view1CurrentItems.map((item, index) => (
                           <tr key={index}>
                             <td className="py-2 px-4 border-b border-gray-200">
                               {item.area}
@@ -762,6 +571,35 @@ const AdminDashboard: React.FC = () => {
                         ))}
                       </tbody>
                     </table>
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="text-sm text-gray-500">
+                        Showing {view1StartIndex + 1}-{Math.min(view1EndIndex, availableRoomsPerArea.length)} of {availableRoomsPerArea.length} entries
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={handleView1PrevPage}
+                          disabled={view1Page === 1}
+                          className={`px-3 py-1 rounded ${
+                            view1Page === 1
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          Previous
+                        </button>
+                        <button
+                          onClick={handleView1NextPage}
+                          disabled={view1Page === view1TotalPages}
+                          className={`px-3 py-1 rounded ${
+                            view1Page === view1TotalPages
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -783,7 +621,7 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {hotelCapacity.map((item, index) => (
+                        {view2CurrentItems.map((item, index) => (
                           <tr key={index}>
                             <td className="py-2 px-4 border-b border-gray-200">
                               {item.hotel_id}
@@ -795,6 +633,35 @@ const AdminDashboard: React.FC = () => {
                         ))}
                       </tbody>
                     </table>
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="text-sm text-gray-500">
+                        Showing {view2StartIndex + 1}-{Math.min(view2EndIndex, hotelCapacity.length)} of {hotelCapacity.length} entries
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={handleView2PrevPage}
+                          disabled={view2Page === 1}
+                          className={`px-3 py-1 rounded ${
+                            view2Page === 1
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          Previous
+                        </button>
+                        <button
+                          onClick={handleView2NextPage}
+                          disabled={view2Page === view2TotalPages}
+                          className={`px-3 py-1 rounded ${
+                            view2Page === view2TotalPages
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1014,98 +881,74 @@ const AdminDashboard: React.FC = () => {
                   )}
 
                   {activeTab === "rooms" && (
-                    <div>
-                      <table className="min-w-full bg-white">
-                        <thead>
-                          <tr>
-                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                              Room ID
-                            </th>
-                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                              Hotel ID
-                            </th>
-                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                              Price
-                            </th>
-                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                              Capacity
-                            </th>
-                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                              View
-                            </th>
-                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                              Extendable
-                            </th>
-                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {currentRooms.map((room) => (
-                            <tr key={room.id} className="hover:bg-gray-50">
-                              <td className="py-3 px-4 border-b border-gray-200">
-                                {room.id}
-                              </td>
-                              <td className="py-3 px-4 border-b border-gray-200">
-                                {room.hotelId}
-                              </td>
-                              <td className="py-3 px-4 border-b border-gray-200">
-                                {room.price}
-                              </td>
-                              <td className="py-3 px-4 border-b border-gray-200">
-                                {room.capacity}
-                              </td>
-                              <td className="py-3 px-4 border-b border-gray-200">
-                                {room.view}
-                              </td>
-                              <td className="py-3 px-4 border-b border-gray-200">
-                                {room.extendable ? "Yes" : "No"}
-                              </td>
-                              <td className="py-3 px-4 border-b border-gray-200">
-                                <div className="flex space-x-2">
-                                  <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                    Edit
-                                  </button>
-                                  <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                    Delete
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <table className="min-w-full bg-white">
+                      <thead>
+                        <tr>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Room ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Hotel ID
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Price
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Capacity
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            View
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Extendable
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rooms.map((room) => (
+                          <tr key={room.room_id} className="hover:bg-gray-50">
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.room_id}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {hotelRecords.find((h) => h.hotel_id === room.hotel_id)?.hotel_id || ""}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.price}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.capacity}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.view}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.extendable ? "Yes" : "No"}
+                            </td>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              {room.status}
+                            </td>
 
-                      {/* Pagination Controls */}
-                      <div className="flex justify-between items-center mt-4">
-                        <button
-                          onClick={handlePreviousPage}
-                          disabled={currentPage === 1}
-                          className={`px-4 py-2 rounded ${
-                            currentPage === 1
-                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              : "bg-blue-600 text-white hover:bg-blue-700"
-                          }`}
-                        >
-                          Previous
-                        </button>
-                        <span className="text-sm text-gray-700">
-                          Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                          onClick={handleNextPage}
-                          disabled={currentPage === totalPages}
-                          className={`px-4 py-2 rounded ${
-                            currentPage === totalPages
-                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              : "bg-blue-600 text-white hover:bg-blue-700"
-                          }`}
-                        >
-                          Next
-                        </button>
-                      </div>
-                    </div>
+                            <td className="py-3 px-4 border-b border-gray-200">
+                              <div className="flex space-x-2">
+                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                  <Edit size={16} />
+                                </button>
+                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   )}
 
                   {activeTab === "customers" && (
@@ -1346,9 +1189,9 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                       <option value="">Select Customer</option>
-                      {mockCustomers.map((customer) => (
-                        <option key={customer.id} value={customer.id}>
-                          {customer.name}
+                      {customers.map((customer) => (
+                        <option key={customer.customer_id} value={customer.customer_id}>
+                          {customer.first_name} {customer.last_name}
                         </option>
                       ))}
                     </select>
@@ -1359,9 +1202,9 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                       <option value="">Select Hotel</option>
-                      {mockHotels.map((hotel) => (
-                        <option key={hotel.id} value={hotel.id}>
-                          {hotel.name}
+                      {hotelRecords.map((hotel) => (
+                        <option key={hotel.hotel_id} value={hotel.hotel_id}>
+                          {hotel.hotel_id}
                         </option>
                       ))}
                     </select>
@@ -1372,9 +1215,9 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                       <option value="">Select Room</option>
-                      {mockRooms.map((room) => (
-                        <option key={room.id} value={room.id}>
-                          Room {room.number} - {room.capacity}
+                      {rooms.map((room) => (
+                        <option key={room.room_id} value={room.room_id}>
+                          Room {room.room_id} - {room.capacity}
                         </option>
                       ))}
                     </select>
@@ -1403,9 +1246,9 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                       <option value="">Select Employee</option>
-                      {mockEmployees.map((employee) => (
-                        <option key={employee.id} value={employee.id}>
-                          {employee.name} - {employee.position}
+                      {employees.map((employee) => (
+                        <option key={employee.ssn} value={employee.ssn}>
+                          {employee.first_name} {employee.last_name} - {employee.role}
                         </option>
                       ))}
                     </select>
@@ -1452,23 +1295,19 @@ const AdminDashboard: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {mockRooms.map((room) => (
-                        <tr key={room.id} className="hover:bg-gray-50">
+                      {rooms.map((room) => (
+                        <tr key={room.room_id} className="hover:bg-gray-50">
                           <td className="py-2 px-4 border-b border-gray-200">
-                            {room.number}
+                            {room.room_id}
                           </td>
                           <td className="py-2 px-4 border-b border-gray-200">
-                            {mockHotels.find((h) => h.id === room.hotelId)
-                              ?.name || ""}
+                            {hotelRecords.find((h) => h.hotel_id === room.hotel_id)?.hotel_id || ""}
                           </td>
                           <td className="py-2 px-4 border-b border-gray-200">
                             {room.capacity}
                           </td>
                           <td className="py-2 px-4 border-b border-gray-200">
                             ${room.price}/night
-                          </td>
-                          <td className="py-2 px-4 border-b border-gray-200">
-                            {room.amenities}
                           </td>
                           <td className="py-2 px-4 border-b border-gray-200">
                             {room.view}
@@ -1580,9 +1419,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Hotel Chain</option>
-                            {mockHotelChains.map((chain) => (
-                              <option key={chain.id} value={chain.id}>
-                                {chain.name}
+                            {hotelChains.map((chain) => (
+                              <option key={chain.chain_id} value={chain.chain_id}>
+                                {chain.chain_id}
                               </option>
                             ))}
                           </select>
@@ -1647,9 +1486,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Hotel</option>
-                            {mockHotels.map((hotel) => (
-                              <option key={hotel.id} value={hotel.id}>
-                                {hotel.name}
+                            {hotelRecords.map((hotel) => (
+                              <option key={hotel.hotel_id} value={hotel.hotel_id}>
+                                {hotel.hotel_id}
                               </option>
                             ))}
                           </select>
@@ -1774,9 +1613,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Customer</option>
-                            {mockCustomers.map((customer) => (
-                              <option key={customer.id} value={customer.id}>
-                                {customer.name}
+                            {customers.map((customer) => (
+                              <option key={customer.customer_id} value={customer.customer_id}>
+                                {customer.first_name} {customer.last_name}
                               </option>
                             ))}
                           </select>
@@ -1787,9 +1626,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Hotel</option>
-                            {mockHotels.map((hotel) => (
-                              <option key={hotel.id} value={hotel.id}>
-                                {hotel.name}
+                            {hotelRecords.map((hotel) => (
+                              <option key={hotel.hotel_id} value={hotel.hotel_id}>
+                                {hotel.hotel_id}
                               </option>
                             ))}
                           </select>
@@ -1800,9 +1639,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Room</option>
-                            {mockRooms.map((room) => (
-                              <option key={room.id} value={room.id}>
-                                Room {room.number} - {room.capacity}
+                            {rooms.map((room) => (
+                              <option key={room.room_id} value={room.room_id}>
+                                Room {room.room_id} - {room.capacity}
                               </option>
                             ))}
                           </select>
@@ -1838,9 +1677,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Customer</option>
-                            {mockCustomers.map((customer) => (
-                              <option key={customer.id} value={customer.id}>
-                                {customer.name}
+                            {customers.map((customer) => (
+                              <option key={customer.customer_id} value={customer.customer_id}>
+                                {customer.first_name} {customer.last_name}
                               </option>
                             ))}
                           </select>
@@ -1851,9 +1690,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Hotel</option>
-                            {mockHotels.map((hotel) => (
-                              <option key={hotel.id} value={hotel.id}>
-                                {hotel.name}
+                            {hotelRecords.map((hotel) => (
+                              <option key={hotel.hotel_id} value={hotel.hotel_id}>
+                                {hotel.hotel_id}
                               </option>
                             ))}
                           </select>
@@ -1864,9 +1703,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Room</option>
-                            {mockRooms.map((room) => (
-                              <option key={room.id} value={room.id}>
-                                Room {room.number} - {room.capacity}
+                            {rooms.map((room) => (
+                              <option key={room.room_id} value={room.room_id}>
+                                Room {room.room_id} - {room.capacity}
                               </option>
                             ))}
                           </select>
@@ -1897,9 +1736,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Employee</option>
-                            {mockEmployees.map((employee) => (
-                              <option key={employee.id} value={employee.id}>
-                                {employee.name} - {employee.position}
+                            {employees.map((employee) => (
+                              <option key={employee.ssn} value={employee.ssn}>
+                                {employee.first_name} {employee.last_name} - {employee.role}
                               </option>
                             ))}
                           </select>
@@ -1925,18 +1764,17 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Booking</option>
-                            {mockBookings.map((booking) => {
-                              const customer = mockCustomers.find(
-                                (c) => c.id === booking.customerId
+                            {bookingsList.map((booking) => {
+                              const customer = customers.find(
+                                (c) => c.customer_id === booking.customer_id
                               );
-                              const room = mockRooms.find(
-                                (r) => r.id === booking.roomId
+                              const room = rooms.find(
+                                (r) => r.room_id === booking.room_id
                               );
                               return (
-                                <option key={booking.id} value={booking.id}>
-                                  {customer?.name || "Unknown"} - Room{" "}
-                                  {room?.number || "Unknown"} (
-                                  {booking.startDate} to {booking.endDate})
+                                <option key={booking.booking_id} value={booking.booking_id}>
+                                  {customer ? `${customer.first_name} ${customer.last_name}` : "Unknown"} - Room{" "}
+                                  {room?.room_id || "Unknown"} ({booking.start_date} to {booking.end_date})
                                 </option>
                               );
                             })}
@@ -1948,9 +1786,9 @@ const AdminDashboard: React.FC = () => {
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <option value="">Select Employee</option>
-                            {mockEmployees.map((employee) => (
-                              <option key={employee.id} value={employee.id}>
-                                {employee.name} - {employee.position}
+                            {employees.map((employee) => (
+                              <option key={employee.ssn} value={employee.ssn}>
+                                {employee.first_name} {employee.last_name} - {employee.role}
                               </option>
                             ))}
                           </select>
