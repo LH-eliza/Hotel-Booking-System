@@ -228,12 +228,15 @@ const AdminDashboard: React.FC = () => {
     centralOfficeAddress: "",
   });
 
-  // Create Booking
-  const [bookingCustomer, setBookingCustomer] = useState("CUST3088");
-  const [bookingRoom, setBookingRoom] = useState("RM0010102");
-  const [bookingStartDate, setBookingStartDate] = useState("");
-  const [bookingEndDate, setBookingEndDate] = useState("");
-  const [bookingHotel, setBookingHotel] = useState("HTL00100");
+
+  const [bookingData, setBookingData] = useState({
+    customer: "CUST3088",
+    room: "RM0010102",
+    startDate: "",
+    endDate: "",
+    hotel: "HTL00100"
+  });
+  
 
   const [rooms, setRooms] = useState([]);
   const [rentings, setRentings] = useState([]);
@@ -622,9 +625,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleNewBooking = async () => {
-    if (!bookingCustomer || !bookingRoom || !bookingStartDate || !bookingEndDate || !bookingHotel) {
+    if (!bookingData.customer || !bookingData.room || !bookingData.startDate || !bookingData.endDate || !bookingData.hotel) {
       alert("Please fill in all fields");
-      console.log(bookingCustomer, bookingRoom, bookingStartDate, bookingEndDate, bookingHotel)
+      console.log(bookingData.customer, bookingData.room, bookingData.startDate, bookingData.endDate, bookingData.hotel);
       return;
     }
   
@@ -633,7 +636,7 @@ const AdminDashboard: React.FC = () => {
     VALUES ($1, $2, $3, $4, $5)
   `;
     const booking_id = Math.floor(Math.random() * 9000) + 1000;
-    const values = [booking_id, bookingCustomer, bookingStartDate, bookingEndDate, bookingRoom];
+    const values = [booking_id, bookingData.customer, bookingData.startDate, bookingData.endDate, bookingData.room];
 
     try {
       const result = await runQuery(query, values);
@@ -2809,7 +2812,8 @@ const AdminDashboard: React.FC = () => {
                             Customer
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setBookingCustomer(e.target.value)}>
+                          onChange={(e) => setBookingData({ ...bookingData, customer: e.target.value })}
+                          >
                             {customerIDList.map((customer) => (
                               <option key={customer} value={customer}>
                                 {customer}
@@ -2823,7 +2827,8 @@ const AdminDashboard: React.FC = () => {
                             Hotel
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setBookingHotel(e.target.value)}>
+                          onChange={(e) => setBookingData({ ...bookingData, hotel: e.target.value })}
+                          >
                             {hotelIDList.map((hotel) => (
                               <option key={hotel} value={hotel}>
                                 {hotel}
@@ -2836,7 +2841,8 @@ const AdminDashboard: React.FC = () => {
                             Room
                           </label>
                           <select className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          onChange={(e) => setBookingRoom(e.target.value)}>
+                          onChange={(e) => setBookingData({ ...bookingData, room: e.target.value })}
+                          >
                             {roomIDs.map((room) => (
                               <option key={room} value={room}>
                                {room}
@@ -2851,7 +2857,7 @@ const AdminDashboard: React.FC = () => {
                             </label>
                             <input
                               type="date"
-                              onChange={(e) => setBookingStartDate(e.target.value)}
+                              onChange={(e) => setBookingData({ ...bookingData, startDate: e.target.value })}
                               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
                           </div>
@@ -2861,7 +2867,7 @@ const AdminDashboard: React.FC = () => {
                             </label>
                             <input
                               type="date"
-                              onChange={(e) => setBookingEndDate(e.target.value)}
+                              onChange={(e) => setBookingData({ ...bookingData, endDate: e.target.value })}
                               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
                           </div>
