@@ -309,80 +309,102 @@ const AdminDashboard: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showBookingModal, setShowBookingModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Calculate the paginated data
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentRooms = rooms.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(rooms.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const fetchHotelChainCount = async () => {
     try {
-      const response = await fetch("/api/getHotelChainCount");  // Correct route
+      const response = await fetch("/api/getHotelChainCount"); // Correct route
       if (response.ok) {
         const data = await response.json();
-        setHotelChainCount(data.total);  // Store the row count in state
+        setHotelChainCount(data.total); // Store the row count in state
       } else {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchAvailableRooms = async () => {
     try {
-      const response = await fetch("/api/getAvailableRoomsPerArea");  // Call the backend route
+      const response = await fetch("/api/getAvailableRoomsPerArea"); // Call the backend route
       if (response.ok) {
         const data = await response.json();
-        setAvailableRoomsPerArea(data);  // Store the table data in state
+        setAvailableRoomsPerArea(data); // Store the table data in state
       } else {
         throw new Error("Failed to fetch rooms");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchHotelCapacity = async () => {
     try {
-      const response = await fetch("/api/getRoomCapacityPerHotel");  // Call the backend route
+      const response = await fetch("/api/getRoomCapacityPerHotel"); // Call the backend route
       if (response.ok) {
         const data = await response.json();
-        setHotelCapacity(data);  // Store the table data in state
+        setHotelCapacity(data); // Store the table data in state
       } else {
         throw new Error("Failed to fetch rooms");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch("/api/getBookings");  // Correct route
+      const response = await fetch("/api/getBookings"); // Correct route
       if (response.ok) {
         const data = await response.json();
-        setBookings(data.total);  // Store the row count in state
+        setBookings(data.total); // Store the row count in state
       } else {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchHotelCount = async () => {
     try {
-      const response = await fetch("/api/getHotelCount");  // Correct route
+      const response = await fetch("/api/getHotelCount"); // Correct route
       if (response.ok) {
         const data = await response.json();
-        setHotelCount(data.total);  // Store the row count in state
+        setHotelCount(data.total); // Store the row count in state
       } else {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchHotels = async () => {
     try {
-      const response = await fetch("/api/getHotels");  // Correct route
+      const response = await fetch("/api/getHotels"); // Correct route
       if (response.ok) {
         const data = await response.json();
         setHotelRecords(data);
@@ -390,13 +412,13 @@ const AdminDashboard: React.FC = () => {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch("/api/getEmployees");  // Correct route
+      const response = await fetch("/api/getEmployees"); // Correct route
       if (response.ok) {
         const data = await response.json();
         setEmployees(data);
@@ -404,13 +426,13 @@ const AdminDashboard: React.FC = () => {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchBookingList = async () => {
     try {
-      const response = await fetch("/api/getBookingList");  // Correct route
+      const response = await fetch("/api/getBookingList"); // Correct route
       if (response.ok) {
         const data = await response.json();
         setBookingsList(data);
@@ -418,13 +440,13 @@ const AdminDashboard: React.FC = () => {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch("/api/getRooms");  // Correct route
+      const response = await fetch("/api/getRooms"); // Correct route
       if (response.ok) {
         const data = await response.json();
         setRooms(data);
@@ -432,13 +454,13 @@ const AdminDashboard: React.FC = () => {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch("/api/getCustomers");  // Correct route
+      const response = await fetch("/api/getCustomers"); // Correct route
       if (response.ok) {
         const data = await response.json();
         setCustomers(data);
@@ -446,13 +468,13 @@ const AdminDashboard: React.FC = () => {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchHotelChains = async () => {
     try {
-      const response = await fetch("/api/getHotelChains");  // Correct route
+      const response = await fetch("/api/getHotelChains"); // Correct route
       if (response.ok) {
         const data = await response.json();
         setHotelChains(data);
@@ -460,21 +482,21 @@ const AdminDashboard: React.FC = () => {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   const fetchCustomerCount = async () => {
     try {
-      const response = await fetch("/api/getCustomerCount");  // Correct route
+      const response = await fetch("/api/getCustomerCount"); // Correct route
       if (response.ok) {
         const data = await response.json();
-        setCustomerCount(data.total);  // Store the row count in state
+        setCustomerCount(data.total); // Store the row count in state
       } else {
         throw new Error("Failed to fetch row count");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -656,7 +678,9 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Hotel Chains</div>
-                      <div className="text-xl font-semibold">{hotelChainCount}</div>
+                      <div className="text-xl font-semibold">
+                        {hotelChainCount}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -678,7 +702,9 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Customers</div>
-                      <div className="text-xl font-semibold">{customerCount}</div>
+                      <div className="text-xl font-semibold">
+                        {customerCount}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -905,7 +931,7 @@ const AdminDashboard: React.FC = () => {
                             <td className="py-3 px-4 border-b border-gray-200">
                               {chain.central_office_address}
                             </td>
-                           
+
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
                                 <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
@@ -926,7 +952,7 @@ const AdminDashboard: React.FC = () => {
                     <table className="min-w-full bg-white">
                       <thead>
                         <tr>
-                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Chain ID
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -987,82 +1013,106 @@ const AdminDashboard: React.FC = () => {
                     </table>
                   )}
 
-                    {activeTab === "rooms" && (
-                    <table className="min-w-full bg-white">
-                      <thead>
-                        <tr>
-                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Room ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Hotel ID
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Price
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Capacity
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            View
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Extendable
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rooms.map((room) => (
-                          <tr key={room.room_id} className="hover:bg-gray-50">
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.room_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.hotel_id}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.price}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.capacity}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.view}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                            {room.extendable ? "TRUE" : "FALSE"}
-                            </td>
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              {room.status}
-                            </td>
-
-                            <td className="py-3 px-4 border-b border-gray-200">
-                              <div className="flex space-x-2">
-                                <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
-                                  <Edit size={16} />
-                                </button>
-                                <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            </td>
+                  {activeTab === "rooms" && (
+                    <div>
+                      <table className="min-w-full bg-white">
+                        <thead>
+                          <tr>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Room ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Hotel ID
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Price
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Capacity
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              View
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Extendable
+                            </th>
+                            <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {currentRooms.map((room) => (
+                            <tr key={room.id} className="hover:bg-gray-50">
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.id}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.hotelId}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.price}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.capacity}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.view}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                {room.extendable ? "Yes" : "No"}
+                              </td>
+                              <td className="py-3 px-4 border-b border-gray-200">
+                                <div className="flex space-x-2">
+                                  <button className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                    Edit
+                                  </button>
+                                  <button className="p-1 bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+
+                      {/* Pagination Controls */}
+                      <div className="flex justify-between items-center mt-4">
+                        <button
+                          onClick={handlePreviousPage}
+                          disabled={currentPage === 1}
+                          className={`px-4 py-2 rounded ${
+                            currentPage === 1
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-blue-600 text-white hover:bg-blue-700"
+                          }`}
+                        >
+                          Previous
+                        </button>
+                        <span className="text-sm text-gray-700">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                          onClick={handleNextPage}
+                          disabled={currentPage === totalPages}
+                          className={`px-4 py-2 rounded ${
+                            currentPage === totalPages
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-blue-600 text-white hover:bg-blue-700"
+                          }`}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
                   )}
 
-                    {activeTab === "customers" && (
+                  {activeTab === "customers" && (
                     <table className="min-w-full bg-white">
                       <thead>
                         <tr>
-                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Customer ID
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -1090,7 +1140,10 @@ const AdminDashboard: React.FC = () => {
                       </thead>
                       <tbody>
                         {customers.map((customer) => (
-                          <tr key={customer.customer_id} className="hover:bg-gray-50">
+                          <tr
+                            key={customer.customer_id}
+                            className="hover:bg-gray-50"
+                          >
                             <td className="py-3 px-4 border-b border-gray-200">
                               {customer.customer_id}
                             </td>
@@ -1107,7 +1160,7 @@ const AdminDashboard: React.FC = () => {
                               {customer.id_type}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
-                            {customer.id_number}
+                              {customer.id_number}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
                               {customer.registration_date}
@@ -1133,7 +1186,7 @@ const AdminDashboard: React.FC = () => {
                     <table className="min-w-full bg-white">
                       <thead>
                         <tr>
-                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             SSN
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -1175,7 +1228,7 @@ const AdminDashboard: React.FC = () => {
                               {employee.address}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
-                            {employee.role}
+                              {employee.role}
                             </td>
                             <td className="py-3 px-4 border-b border-gray-200">
                               <div className="flex space-x-2">
@@ -1197,7 +1250,7 @@ const AdminDashboard: React.FC = () => {
                     <table className="min-w-full bg-white">
                       <thead>
                         <tr>
-                        <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                          <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                             Booking ID
                           </th>
                           <th className="py-3 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -1219,7 +1272,10 @@ const AdminDashboard: React.FC = () => {
                       </thead>
                       <tbody>
                         {bookingsList.map((booking) => (
-                          <tr key={booking.booking_id} className="hover:bg-gray-50">
+                          <tr
+                            key={booking.booking_id}
+                            className="hover:bg-gray-50"
+                          >
                             <td className="py-3 px-4 border-b border-gray-200">
                               {booking.booking_id}
                             </td>
@@ -1251,8 +1307,6 @@ const AdminDashboard: React.FC = () => {
                       </tbody>
                     </table>
                   )}
-
-
                 </div>
               </div>
             </div>

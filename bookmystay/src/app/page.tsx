@@ -8,8 +8,6 @@ import SimpleDatePicker from "./components/datepicker";
 import GuestSelector from "./components/guest";
 import Header from "./components/header";
 import Footer from "./components/footer";
-import Link from "next/link";
-
 
 interface DateRange {
   startDate: string;
@@ -46,79 +44,76 @@ interface SearchFormData {
 // ];
 
 // const DESTINATIONS: string[] = [
-//   'Centretown', 'The Glebe', 'Byward Market', 'Rockcliffe Park', 'Westboro', 'Old Ottawa East', 
-//   'Orleans', 'Kanata', 'Barrhaven', 'Nepean', 'Manotick', 'Stittsville', 'New Edinburgh', 
+//   'Centretown', 'The Glebe', 'Byward Market', 'Rockcliffe Park', 'Westboro', 'Old Ottawa East',
+//   'Orleans', 'Kanata', 'Barrhaven', 'Nepean', 'Manotick', 'Stittsville', 'New Edinburgh',
 //   'Sandy Hill', 'Carleton Heights', 'Carp', 'Alta Vista', 'Little Italy', 'Overbrook', 'Cumberland'
 // ];
 
 const HotelSearchPage: React.FC = () => {
   const [destinations, setDestinations] = useState([]);
   const [hotels, setHotels] = useState([]);
-  const [query, setQuery] = useState('SELECT * FROM Customer');  // State to hold the query string
-  const [data, setData] = useState(null);  // State to hold the API response
-  const [error, setError] = useState("");  // State to hold any errors
+  const [query, setQuery] = useState("SELECT * FROM Customer"); // State to hold the query string
+  const [data, setData] = useState(null); // State to hold the API response
+  const [error, setError] = useState(""); // State to hold any errors
   const router = useRouter();
-
-  const handleQueryChange = (event) => {
-    setQuery(event.target.value);  // Update query state when input changes
-  };
 
   useEffect(() => {
     fetchNeighborhoods();
     fetchHotelChainID();
-    fetchData();  // Fetch data when the component mounts
-  }
-  , [query]);  // Re-fetch data when the query state changes
+    fetchData(); // Fetch data when the component mounts
+  }, [query]); // Re-fetch data when the query state changes
 
   const fetchNeighborhoods = async () => {
     try {
-      const response = await fetch('/api/destinations');
+      const response = await fetch("/api/destinations");
       if (response.ok) {
         const data = await response.json();
         setDestinations(data); // Store the destinations from the response
       } else {
-        throw new Error('Failed to fetch destinations');
+        throw new Error("Failed to fetch destinations");
       }
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
       setError(error.message);
     }
-    }
+  };
 
-    const fetchHotelChainID = async () => {
-      try {
-        const response = await fetch('/api/hotel_chain');
-        if (response.ok) {
-          const data = await response.json();
-          setHotels(data); // Store the hotel ids from the response
-        } else {
-          throw new Error('Failed to fetch hotel ids');
-        }
-      } catch (error) {
-        console.log(error.message)
-        setError(error.message);
+  const fetchHotelChainID = async () => {
+    try {
+      const response = await fetch("/api/hotel_chain");
+      if (response.ok) {
+        const data = await response.json();
+        setHotels(data); // Store the hotel ids from the response
+      } else {
+        throw new Error("Failed to fetch hotel ids");
       }
-      }
+    } catch (error) {
+      console.log(error.message);
+      setError(error.message);
+    }
+  };
 
   const fetchData = async () => {
     if (!query) {
-      setError('Query cannot be empty');
+      setError("Query cannot be empty");
       return;
     }
 
     try {
       // Send the query to the backend via GET request
-      const response = await fetch(`/api/data?query=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `/api/data?query=${encodeURIComponent(query)}`
+      );
 
       if (response.ok) {
         const jsonData = await response.json();
-        setData(jsonData);  // Store the data in state
-        setError("");  // Clear any previous errors
+        setData(jsonData); // Store the data in state
+        setError(""); // Clear any previous errors
       } else {
-        throw new Error('Failed to fetch data');
+        throw new Error("Failed to fetch data");
       }
     } catch (error) {
-      setError(error.message);  // Set the error message
+      setError(error.message); // Set the error message
     }
   };
 
@@ -287,10 +282,10 @@ const HotelSearchPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Guests Dropdown */}
+              {/* CAPACITY Dropdown */}
               <div className="flex-1 px-3 border-l border-gray-200">
                 <label className="block text-xs text-gray-500 mb-1">
-                  GUESTS
+                  CAPACITY
                 </label>
                 <div className="relative">
                   <div className="w-full cursor-pointer">
@@ -410,7 +405,7 @@ const HotelSearchPage: React.FC = () => {
 
                 <div className="mb-4">
                   <label className="block text-xs text-gray-500 mb-1">
-                    GUESTS
+                    CAPACITY
                   </label>
                   <div className="relative">
                     <div className="w-full cursor-pointer">
