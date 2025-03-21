@@ -190,6 +190,9 @@ export default function HotelBookingPage(): React.ReactElement {
     }));
     setOpenDropdown(null);
 
+    if (name === 'hotel') {
+      setFilterState(prev => ({ ...prev, hotelChain: value }));
+    }
     if (name === 'destination') {
       setFilterState(prev => ({ ...prev, destination: value }));
     }
