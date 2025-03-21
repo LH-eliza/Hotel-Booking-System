@@ -31,6 +31,7 @@ interface BookingDetails {
   amenities: string[];
   starCategory: number;
   neighborhood: string;
+  address: string;
   capacity: string;
   view: string;
   isAvailable: boolean;
@@ -69,6 +70,7 @@ export default function BookingConfirmationPage() {
     const amenities = searchParams.get('amenities')?.split(',') || [];
     const starCategory = searchParams.get('starCategory');
     const neighborhood = searchParams.get('neighborhood');
+    const address = searchParams.get('address');
     const capacity = searchParams.get('capacity');
     const view = searchParams.get('view');
     const isAvailable = searchParams.get('isAvailable') === 'true';
@@ -84,6 +86,7 @@ export default function BookingConfirmationPage() {
       amenities,
       starCategory,
       neighborhood,
+      address,
       capacity,
       view,
       isAvailable
@@ -104,6 +107,7 @@ export default function BookingConfirmationPage() {
       amenities: amenities,
       starCategory: starCategory ? parseInt(starCategory) : 0,
       neighborhood: neighborhood || '',
+      address: address || '',
       capacity: capacity || '',
       view: view || '',
       isAvailable: isAvailable,
@@ -187,7 +191,8 @@ export default function BookingConfirmationPage() {
                 <p>Chain ID: {bookingDetails.chainId}</p>
                 <p>Hotel ID: {bookingDetails.hotelId}</p>
                 <p>Room Number: {bookingDetails.roomNumber}</p>
-                <p>Location: {bookingDetails.neighborhood}</p>
+                <p>Address: {bookingDetails.address}</p>
+                <p className="text-sm text-gray-600">Neighborhood: {bookingDetails.neighborhood}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-yellow-400">{Array(bookingDetails.starCategory).fill('★').join('')}</span>
                   <span className="text-sm text-gray-600">({bookingDetails.starCategory}-Star)</span>

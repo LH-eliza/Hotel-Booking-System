@@ -40,6 +40,7 @@ export default function HotelBookingPage(): React.ReactElement {
   const [hotels, setHotels] = useState([]);
   const [roomCapacity, setRoomCapacity] = useState([]);
   const [amenities, setAmenities] = useState([]);
+  const [viewTypes, setViewTypes] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function HotelBookingPage(): React.ReactElement {
     fetchHotelChainID();
     fetchRoomCapacity();
     fetchAmenities();
+    fetchViewTypes();
   }, []);
 
   // Update the form data effect to also update filter state
@@ -155,6 +157,25 @@ export default function HotelBookingPage(): React.ReactElement {
     }
   };
 
+  const fetchViewTypes = async () => {
+    try {
+      const response = await fetch("/api/rooms");
+      if (response.ok) {
+        const data = await response.json();
+        setViewTypes(data.viewTypes);
+      } else {
+        throw new Error("Failed to fetch view types");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred');
+      }
+    }
+  };
+
   const [formData, setFormData] = useState<SearchFormData>({
     dates: null,
     hotel: "",
@@ -190,9 +211,7 @@ export default function HotelBookingPage(): React.ReactElement {
     }));
     setOpenDropdown(null);
 
-    if (name === 'hotel') {
-      setFilterState(prev => ({ ...prev, hotelChain: value }));
-    }
+    // Update filter state when selecting options
     if (name === 'destination') {
       setFilterState(prev => ({ ...prev, destination: value }));
     }
@@ -548,13 +567,6 @@ export default function HotelBookingPage(): React.ReactElement {
                 type="text"
                 placeholder="E.g. CH001"
                 className="w-full p-2 border border-gray-300 rounded"
-                value={filterState.hotelChain}
-                onChange={(e) =>
-                  setFilterState({
-                    ...filterState,
-                    hotelChain: e.target.value,
-                  })
-                }
               />
             </div>
 
@@ -665,6 +677,29 @@ export default function HotelBookingPage(): React.ReactElement {
                       }}
                     />
                     {capacity}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* View Type Filter */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium mb-3">View Type</h3>
+              <div className="space-y-2">
+                {viewTypes.map((view) => (
+                  <label key={view} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={filterState.viewType.includes(view)}
+                      onChange={() => {
+                        const newViewTypes = filterState.viewType.includes(view)
+                          ? filterState.viewType.filter((v) => v !== view)
+                          : [...filterState.viewType, view];
+                        setFilterState({ ...filterState, viewType: newViewTypes });
+                      }}
+                    />
+                    {view}
                   </label>
                 ))}
               </div>

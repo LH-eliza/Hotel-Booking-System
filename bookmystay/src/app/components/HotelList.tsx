@@ -35,6 +35,7 @@ interface Room {
   starCategory: number;
   neighborhood: string | null;
   roomNumber?: string;
+  address: string;
 }
 
 const StarDisplay = ({ count }: { count: number }) => (
@@ -69,7 +70,7 @@ const HotelList: React.FC<HotelListProps> = ({
         throw new Error('Failed to fetch rooms');
       }
       const data = await response.json();
-      const formattedData = data.map((room: Room) => ({
+      const formattedData = data.rooms.map((room: Room) => ({
         ...room,
         price: typeof room.price === 'string' ? parseFloat(room.price) : room.price
       }));
@@ -162,6 +163,7 @@ const HotelList: React.FC<HotelListProps> = ({
       amenities: room.amenities?.join(',') || '',
       starCategory: room.starCategory.toString(),
       neighborhood: room.neighborhood || '',
+      address: room.address || '',
       capacity: room.capacity,
       view: room.view || '',
       isAvailable: room.isAvailable.toString(),
@@ -245,6 +247,7 @@ const HotelList: React.FC<HotelListProps> = ({
                     {room.neighborhood && (
                       <p className="text-sm text-gray-600">Location: {room.neighborhood}</p>
                     )}
+                    <p className="text-sm text-gray-600">Address: {room.address}</p>
                     <div className="mt-1">
                       <StarDisplay count={room.starCategory} />
                     </div>
@@ -311,19 +314,94 @@ const HotelList: React.FC<HotelListProps> = ({
             Previous
           </button>
           
-          {[...Array(totalPages)].map((_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`px-3 py-1 rounded-md ${
-                currentPage === index + 1
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
+          {(() => {
+            const pages = [];
+            const maxVisiblePages = 5;
+            
+            if (totalPages <= maxVisiblePages) {
+              // Show all pages if total is less than max visible
+              for (let i = 1; i <= totalPages; i++) {
+                pages.push(
+                  <button
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === i
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                    }`}
+                  >
+                    {i}
+                  </button>
+                );
+              }
+            } else {
+              // Always show first page
+              pages.push(
+                <button
+                  key={1}
+                  onClick={() => handlePageChange(1)}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === 1
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  }`}
+                >
+                  1
+                </button>
+              );
+
+              if (currentPage > 3) {
+                pages.push(
+                  <span key="start-ellipsis" className="px-2">
+                    ...
+                  </span>
+                );
+              }
+
+              // Show pages around current page
+              for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                pages.push(
+                  <button
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === i
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                    }`}
+                  >
+                    {i}
+                  </button>
+                );
+              }
+
+              if (currentPage < totalPages - 2) {
+                pages.push(
+                  <span key="end-ellipsis" className="px-2">
+                    ...
+                  </span>
+                );
+              }
+
+              // Always show last page
+              pages.push(
+                <button
+                  key={totalPages}
+                  onClick={() => handlePageChange(totalPages)}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === totalPages
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              );
+            }
+
+            return pages;
+          })()}
           
           <button
             onClick={() => handlePageChange(currentPage + 1)}
