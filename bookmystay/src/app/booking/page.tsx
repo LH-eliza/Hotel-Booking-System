@@ -519,7 +519,7 @@ export default function HotelBookingPage(): React.ReactElement {
               <h3 className="text-lg font-medium mb-3">Hotel Chain</h3>
               <input
                 type="text"
-                placeholder="E.g. CH001"
+                placeholder="E.g. Westin"
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
@@ -617,22 +617,20 @@ export default function HotelBookingPage(): React.ReactElement {
             <div className="mb-6">
               <h3 className="text-lg font-medium mb-3">Room Capacity</h3>
               <div className="space-y-2">
-                {roomCapacity.map((capacity) => (
-                  <label key={capacity} className="flex items-center hover:bg-gray-50 p-1 rounded">
+                {["Single", "Double", "Triple", "Quad", "Family"].map((capacity) => (
+                  <label key={capacity} className="flex items-center">
                     <input
-                      type="radio"
-                      name="roomCapacity"
-                      className="mr-2 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      type="checkbox"
+                      className="mr-2"
                       checked={filterState.roomCapacity.includes(capacity)}
                       onChange={() => {
-                        // Since it's a radio button, we only want one selection
-                        setFilterState({
-                          ...filterState,
-                          roomCapacity: [capacity]
-                        });
+                        const newCapacity = filterState.roomCapacity.includes(capacity)
+                          ? filterState.roomCapacity.filter((c) => c !== capacity)
+                          : [...filterState.roomCapacity, capacity];
+                        setFilterState({ ...filterState, roomCapacity: newCapacity });
                       }}
                     />
-                    <span className="text-sm">{capacity}</span>
+                    {capacity}
                   </label>
                 ))}
               </div>
