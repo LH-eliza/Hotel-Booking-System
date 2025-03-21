@@ -6,6 +6,7 @@ import { Search, ChevronDown, Heart } from "lucide-react";
 import SimpleDatePicker from "../components/datepicker";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import HotelList from "../components/HotelList";
 
 interface DateRange {
   startDate: string;
@@ -206,6 +207,10 @@ export default function HotelBookingPage(): React.ReactElement {
 
   const [propertiesFound, setPropertiesFound] = useState(5);
   const [sortOption, setSortOption] = useState("Recommended");
+
+  const handleSortChange = (value: string) => {
+    setSortOption(value);
+  };
 
   return (
     <div>
@@ -638,69 +643,11 @@ export default function HotelBookingPage(): React.ReactElement {
           </div>
 
           {/* Hotels List Section */}
-          <div className="flex-1">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-medium">{propertiesFound} Properties Found</h2>
-              <div className="relative">
-                <select
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded px-4 py-2 pr-8"
-                >
-                  <option>Recommended</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Rating: High to Low</option>
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none" size={16} />
-              </div>
-            </div>
-
-            {/* Hotel Cards */}
-            <div className="space-y-6">
-              {[1, 2, 3].map((hotel) => (
-                <div key={hotel} className="bg-white rounded-lg shadow-md p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="text-lg font-medium">Hotel Name</h3>
-                          <div className="text-sm text-gray-600">Location</div>
-                        </div>
-                        <button className="p-2">
-                          <Heart className="text-gray-400" />
-                        </button>
-                      </div>
-                      <div className="mt-4 flex justify-between items-end">
-                        <div>
-                          <div className="text-sm text-gray-600">
-                            {Math.floor(Math.random() * 5)} reviews
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {Math.floor(Math.random() * 10)} rooms available
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold">
-                            ${Math.floor(Math.random() * 500)}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            /night total
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            includes taxes & fees
-                          </div>
-                          <button className="mt-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium">
-                            View Rooms
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <HotelList
+            sortOption={sortOption}
+            onSortChange={handleSortChange}
+            filterState={filterState}
+          />
         </div>
       </div>
       <Footer />

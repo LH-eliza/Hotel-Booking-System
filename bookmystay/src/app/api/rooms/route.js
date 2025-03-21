@@ -18,8 +18,6 @@ const roomQuery = `
 export async function GET(request) {
   try {
     const result = await pool.query(roomQuery);
-    
-    // Transform the data if needed
     const availableRooms = result.rows.map(row => ({
       hotelId: row.hotel_id,
       price: row.price,
