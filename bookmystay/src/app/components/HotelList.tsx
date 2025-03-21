@@ -3,6 +3,8 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+
 
 interface FilterState {
   starRating: number[];
@@ -57,6 +59,7 @@ const HotelList: React.FC<HotelListProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [currentPage, setCurrentPage] = React.useState(1);
   const itemsPerPage = 5;
+  const searchParams = useSearchParams();
 
   React.useEffect(() => {
     fetchRooms();
@@ -156,10 +159,10 @@ const HotelList: React.FC<HotelListProps> = ({
     const params = {
       hotelId: room.hotelId,
       chainId: room.chainId,
-      roomNumber: room.roomNumber || '',
+      roomNumber: room.roomId || '',
       price: formatPrice(room.price),
-      checkIn: new Date().toISOString().split('T')[0],
-      checkOut: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      checkIn: searchParams.get('startDate') || new Date().toISOString().split('T')[0],
+      checkOut: searchParams.get('endDate') || new Date(Date.now() + 86400000).toISOString().split('T')[0],
       amenities: room.amenities?.join(',') || '',
       starCategory: room.starCategory.toString(),
       neighborhood: room.neighborhood || '',
@@ -242,6 +245,7 @@ const HotelList: React.FC<HotelListProps> = ({
               <div className="flex-1">
                 <div className="flex justify-between">
                   <div>
+                    <h2 className="text-lg font-bold">Room ID: {room.roomId}</h2>
                     <h3 className="text-lg font-medium">Chain ID: {room.chainId}</h3>
                     <p className="text-lg font-medium">Hotel ID: {room.hotelId}</p>
                     {room.neighborhood && (

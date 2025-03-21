@@ -56,7 +56,6 @@ export async function GET(request) {
     }));
     
     const viewTypes = viewTypesResult.rows.map(row => row.view);
-    
     return NextResponse.json({
       rooms: availableRooms,
       viewTypes: viewTypes

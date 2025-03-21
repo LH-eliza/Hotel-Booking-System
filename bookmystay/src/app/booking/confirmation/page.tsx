@@ -50,7 +50,7 @@ export default function BookingConfirmationPage() {
     state: "",
     postalCode: "",
     country: "",
-    idType: "",
+    idType: "SSN",
     idNumber: "",
     registrationDate: new Date().toISOString().split('T')[0],
     specialRequests: "",
@@ -124,11 +124,106 @@ export default function BookingConfirmationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the booking information to your backend
-    // For now, we'll just show a success message and redirect
-    alert("Booking confirmed! Thank you for choosing our service.");
-    router.push('/');
+  
+    try {
+      // Step 1: Check if customer exists
+      const checkCustomerQuery = {
+        query: `
+          SELECT customer_id 
+          FROM customer 
+          WHERE id_type = $1 AND id_number = $2
+        `,
+        values: [guestInfo.idType, guestInfo.idNumber],
+      };
+  
+      const customerResponse = await fetch('/api/runQuery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(checkCustomerQuery),
+      });
+  
+      if (!customerResponse.ok) {
+        throw new Error('Failed to check customer existence');
+      }
+  
+      const customerData = await customerResponse.json();
+      let customerId;
+  
+      if (customerData.length > 0) {
+        // Customer exists
+        customerId = customerData[0].customer_id;
+        console.log('Existing customer ID:', customerId);
+      } else {
+        // Step 2: Create a new customer
+        const fullAddress = `${guestInfo.street}, ${guestInfo.city}, ${guestInfo.state}, ${guestInfo.postalCode}, ${guestInfo.country}`.trim();
+        const newCustomerId = `CUST${Math.floor(1000 + Math.random() * 9000)}`;
+  
+        const createCustomerQuery = {
+          query: `
+            INSERT INTO customer (customer_id, first_name, last_name, address, id_type, id_number, registration_date)
+            VALUES ($1, $2, $3, $4, $5, $6, CURRENT_DATE)
+          `,
+          values: [
+            newCustomerId,
+            guestInfo.firstName,
+            guestInfo.lastName,
+            fullAddress,
+            guestInfo.idType,
+            guestInfo.idNumber,
+          ],
+        };
+  
+        const createCustomerResponse = await fetch('/api/runQuery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(createCustomerQuery),
+        });
+  
+        if (!createCustomerResponse.ok) {
+          throw new Error('Failed to create new customer');
+        }
+  
+        customerId = newCustomerId;
+        console.log('New customer ID:', customerId);
+      }
+  
+      // Step 3: Create booking
+      const bookingId = Math.floor(1000 + Math.random() * 9000);
+
+      const bookingQuery = {
+        query: `
+          INSERT INTO booking (booking_id, customer_id, start_date, end_date, room_id)
+          VALUES ($1, $2, $3, $4, $5)
+        `,
+        values: [
+          bookingId,
+          customerId,
+          bookingDetails?.checkIn,
+          bookingDetails?.checkOut,
+          bookingDetails?.roomNumber,
+        ],
+      };
+  
+      const bookingResponse = await fetch('/api/runQuery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingQuery),
+      });
+  
+      if (!bookingResponse.ok) {
+        throw new Error('Failed to create booking');
+      }
+  
+      // Success Message & Redirect
+      alert("Booking confirmed! Thank you for choosing our service.");
+      router.push('/');
+  
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    }
   };
+  
 
   if (loading) {
     return (

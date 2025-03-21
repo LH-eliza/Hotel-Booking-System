@@ -72,12 +72,12 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
     return `${dateRange.startDate || "..."} → ${dateRange.endDate || "..."}`;
   };
 
-  const handleDateClick = (day: number, monthIndex: number): void => {
+  const handleDateClick = (day: number, monthIndex: number, yearIndex: number): void => {
     const selectedMonth = new Date(
       currentYear,
       currentMonth + monthIndex
     ).toLocaleString("default", { month: "short" });
-    const formattedDate = `${selectedMonth} ${day}`;
+    const formattedDate = `${selectedMonth} ${day} ${yearIndex}`;
 
     if (!dateRange.startDate || (dateRange.startDate && dateRange.endDate)) {
       setDateRange({
@@ -144,7 +144,7 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
         return (
           <div
             key={`day-${day}`}
-            onClick={() => handleDateClick(day, monthIndex)}
+            onClick={() => handleDateClick(day, monthIndex, currentYear)}
           >
             <div className={cellClasses}>{day}</div>
           </div>
