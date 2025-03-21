@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Heart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface FilterState {
   starRating: number[];
@@ -33,6 +34,7 @@ interface Room {
   view?: string;
   starCategory: number;
   neighborhood: string | null;
+  roomNumber?: string;
 }
 
 const StarDisplay = ({ count }: { count: number }) => (
@@ -48,6 +50,7 @@ const HotelList: React.FC<HotelListProps> = ({
   onSortChange,
   filterState,
 }) => {
+  const router = useRouter();
   const [rooms, setRooms] = React.useState<Room[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -141,6 +144,34 @@ const HotelList: React.FC<HotelListProps> = ({
       default:
         return sortedRooms;
     }
+  };
+
+  const handleBookNow = (room: Room) => {
+    if (!room.hotelId || !room.chainId) {
+      alert("Error: Missing required room information");
+      return;
+    }
+
+    const params = {
+      hotelId: room.hotelId,
+      chainId: room.chainId,
+      roomNumber: room.roomNumber || '',
+      price: formatPrice(room.price),
+      checkIn: new Date().toISOString().split('T')[0],
+      checkOut: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      amenities: room.amenities?.join(',') || '',
+      starCategory: room.starCategory.toString(),
+      neighborhood: room.neighborhood || '',
+      capacity: room.capacity,
+      view: room.view || '',
+      isAvailable: room.isAvailable.toString(),
+    };
+
+    // Log the parameters for debugging
+    console.log('Booking Parameters:', params);
+
+    const queryParams = new URLSearchParams(params).toString();
+    router.push(`/booking/confirmation?${queryParams}`);
   };
 
   if (loading) {
@@ -253,6 +284,7 @@ const HotelList: React.FC<HotelListProps> = ({
                           ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' 
                           : 'bg-gray-100 text-gray-500 cursor-not-allowed'}`}
                       disabled={!room.isAvailable}
+                      onClick={() => handleBookNow(room)}
                     >
                       {room.isAvailable ? 'Book Now' : 'Not Available'}
                     </button>
