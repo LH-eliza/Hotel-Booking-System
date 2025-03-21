@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { Heart } from 'lucide-react';
 
@@ -21,12 +23,21 @@ interface HotelListProps {
 
 interface Room {
   hotelId: string;
+  chainId: string;
   price: string | number;
   capacity: string;
   isAvailable: boolean;
   amenities?: string[];
   view?: string;
+  starCategory: number;
 }
+
+const StarDisplay = ({ count }: { count: number }) => (
+  <div className="flex items-center gap-2">
+    <span className="text-yellow-400">{Array(count).fill('★').join('')}</span>
+    <span className="text-sm text-gray-600">({count}-Star)</span>
+  </div>
+);
 
 const HotelList: React.FC<HotelListProps> = ({
   propertiesFound,
@@ -69,6 +80,11 @@ const HotelList: React.FC<HotelListProps> = ({
 
   const filterRooms = (rooms: Room[]): Room[] => {
     return rooms.filter(room => {
+      // Star Rating Filter
+      if (filterState.starRating.length > 0 && !filterState.starRating.includes(room.starCategory)) {
+        return false;
+      }
+
       // Price Range Filter
       const price = parseFloat(formatPrice(room.price));
       const minPrice = filterState.priceRange.min ? parseFloat(filterState.priceRange.min) : 0;
@@ -112,8 +128,6 @@ const HotelList: React.FC<HotelListProps> = ({
     }
   };
 
-  const filteredAndSortedRooms = sortRooms(filterRooms(rooms));
-
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -129,6 +143,8 @@ const HotelList: React.FC<HotelListProps> = ({
       </div>
     );
   }
+
+  const filteredAndSortedRooms = sortRooms(filterRooms(rooms));
 
   return (
     <div className="flex-1">
@@ -163,13 +179,17 @@ const HotelList: React.FC<HotelListProps> = ({
       {/* Room Cards */}
       <div className="space-y-6">
         {filteredAndSortedRooms.map((room, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+          <div key={`${room.hotelId}-${index}`} className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex justify-between">
                   <div>
-                    <h3 className="text-lg font-medium">Hotel ID: {room.hotelId}</h3>
-                    <div className="text-sm text-gray-600">Capacity: {room.capacity}</div>
+                    <h3 className="text-lg font-medium">Chain ID: {room.chainId}</h3>
+                    <p className="text-lg font-medium">Hotel ID: {room.hotelId}</p>
+                    <div className="mt-1">
+                      <StarDisplay count={room.starCategory} />
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1">Capacity: {room.capacity}</div>
                     {room.view && (
                       <div className="text-sm text-gray-600">View: {room.view}</div>
                     )}

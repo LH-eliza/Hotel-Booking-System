@@ -3,26 +3,39 @@ import pool from "../../../../db";
 
 const roomQuery = `
   SELECT 
-    hotel_id,
-    price,
-    capacity,
-    status
+    r.hotel_id,
+    r.price,
+    r.capacity,
+    r.status,
+    h.star_category,
+    h.chain_id,
+    ARRAY_AGG(ra.amenity) AS amenities
   FROM 
-    room
+    room r
+  JOIN 
+    hotel h ON r.hotel_id = h.hotel_id
+  LEFT JOIN 
+    roomamenity ra ON r.room_id = ra.room_id
   WHERE
-    status = 'Available'
+    r.status = 'Available'
+  GROUP BY
+    r.room_id, r.hotel_id, r.price, r.capacity, r.status, h.star_category, h.chain_id
   ORDER BY
-    price ASC
+    r.price ASC
 `;
 
 export async function GET(request) {
   try {
     const result = await pool.query(roomQuery);
+    
     const availableRooms = result.rows.map(row => ({
       hotelId: row.hotel_id,
       price: row.price,
       capacity: row.capacity,
-      isAvailable: row.status === 'Available'
+      isAvailable: row.status === 'Available',
+      starCategory: row.star_category,
+      chainId: row.chain_id,
+      amenities: row.amenities || []
     }));
     
     return NextResponse.json(availableRooms);

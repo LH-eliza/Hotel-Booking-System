@@ -524,7 +524,7 @@ export default function HotelBookingPage(): React.ReactElement {
               <h3 className="text-lg font-medium mb-3">Hotel Chain</h3>
               <input
                 type="text"
-                placeholder="E.g. Westin"
+                placeholder="E.g. CH001"
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
