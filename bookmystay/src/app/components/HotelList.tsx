@@ -12,6 +12,8 @@ interface FilterState {
   amenities: string[];
   roomCapacity: string[];
   viewType: string[];
+  destination?: string;
+  hotelChain: string;
 }
 
 interface HotelListProps {
@@ -30,6 +32,7 @@ interface Room {
   amenities?: string[];
   view?: string;
   starCategory: number;
+  neighborhood: string | null;
 }
 
 const StarDisplay = ({ count }: { count: number }) => (
@@ -48,6 +51,8 @@ const HotelList: React.FC<HotelListProps> = ({
   const [rooms, setRooms] = React.useState<Room[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 5;
 
   React.useEffect(() => {
     fetchRooms();
@@ -80,6 +85,11 @@ const HotelList: React.FC<HotelListProps> = ({
 
   const filterRooms = (rooms: Room[]): Room[] => {
     return rooms.filter(room => {
+      // Hotel Chain Filter
+      if (filterState.hotelChain && !room.chainId.toLowerCase().includes(filterState.hotelChain.toLowerCase())) {
+        return false;
+      }
+
       // Star Rating Filter
       if (filterState.starRating.length > 0 && !filterState.starRating.includes(room.starCategory)) {
         return false;
@@ -110,6 +120,11 @@ const HotelList: React.FC<HotelListProps> = ({
         if (!filterState.viewType.includes(room.view)) {
           return false;
         }
+      }
+
+      // Neighborhood Filter
+      if (filterState.destination && room.neighborhood !== filterState.destination) {
+        return false;
       }
 
       return true;
@@ -145,6 +160,16 @@ const HotelList: React.FC<HotelListProps> = ({
   }
 
   const filteredAndSortedRooms = sortRooms(filterRooms(rooms));
+  const totalPages = Math.ceil(filteredAndSortedRooms.length / itemsPerPage);
+  const paginatedRooms = filteredAndSortedRooms.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="flex-1">
@@ -178,7 +203,7 @@ const HotelList: React.FC<HotelListProps> = ({
 
       {/* Room Cards */}
       <div className="space-y-6">
-        {filteredAndSortedRooms.map((room, index) => (
+        {paginatedRooms.map((room, index) => (
           <div key={`${room.hotelId}-${index}`} className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
             <div className="flex justify-between items-start">
               <div className="flex-1">
@@ -186,6 +211,9 @@ const HotelList: React.FC<HotelListProps> = ({
                   <div>
                     <h3 className="text-lg font-medium">Chain ID: {room.chainId}</h3>
                     <p className="text-lg font-medium">Hotel ID: {room.hotelId}</p>
+                    {room.neighborhood && (
+                      <p className="text-sm text-gray-600">Location: {room.neighborhood}</p>
+                    )}
                     <div className="mt-1">
                       <StarDisplay count={room.starCategory} />
                     </div>
@@ -235,6 +263,49 @@ const HotelList: React.FC<HotelListProps> = ({
           </div>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center items-center space-x-2">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === 1
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+            }`}
+          >
+            Previous
+          </button>
+          
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`px-3 py-1 rounded-md ${
+                currentPage === index + 1
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === totalPages
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -29,6 +29,8 @@ interface FilterState {
   amenities: string[];
   roomCapacity: string[];
   viewType: string[];
+  destination: string;
+  hotelChain: string;
 }
 
 export default function HotelBookingPage(): React.ReactElement {
@@ -47,7 +49,7 @@ export default function HotelBookingPage(): React.ReactElement {
     fetchAmenities();
   }, []);
 
-  // Initialize form data from URL parameters
+  // Update the form data effect to also update filter state
   useEffect(() => {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
@@ -64,9 +66,17 @@ export default function HotelBookingPage(): React.ReactElement {
         }
       }));
     }
-    if (hotel) setFormData(prev => ({ ...prev, hotel }));
-    if (destination) setFormData(prev => ({ ...prev, destination }));
-    if (capacity) setFormData(prev => ({ ...prev, capacity }));
+    if (hotel) {
+      setFormData(prev => ({ ...prev, hotel }));
+    }
+    if (destination) {
+      setFormData(prev => ({ ...prev, destination }));
+      setFilterState(prev => ({ ...prev, destination }));
+    }
+    if (capacity) {
+      setFormData(prev => ({ ...prev, capacity }));
+      setFilterState(prev => ({ ...prev, roomCapacity: [capacity] }));
+    }
   }, [searchParams]);
 
   const fetchNeighborhoods = async () => {
@@ -179,6 +189,13 @@ export default function HotelBookingPage(): React.ReactElement {
       [name]: value,
     }));
     setOpenDropdown(null);
+
+    if (name === 'destination') {
+      setFilterState(prev => ({ ...prev, destination: value }));
+    }
+    if (name === 'capacity') {
+      setFilterState(prev => ({ ...prev, roomCapacity: [value] }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent): void => {
@@ -203,6 +220,8 @@ export default function HotelBookingPage(): React.ReactElement {
     amenities: [],
     roomCapacity: [],
     viewType: [],
+    destination: "",
+    hotelChain: "",
   });
 
   const [propertiesFound, setPropertiesFound] = useState(5);
@@ -526,6 +545,13 @@ export default function HotelBookingPage(): React.ReactElement {
                 type="text"
                 placeholder="E.g. CH001"
                 className="w-full p-2 border border-gray-300 rounded"
+                value={filterState.hotelChain}
+                onChange={(e) =>
+                  setFilterState({
+                    ...filterState,
+                    hotelChain: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -538,7 +564,7 @@ export default function HotelBookingPage(): React.ReactElement {
                     key={stars}
                     className={`px-4 py-2 border rounded ${
                       filterState.starRating.includes(stars)
-                        ? "bg-blue-500 text-white"
+                        ? "bg-purple-500 text-white"
                         : "border-gray-300"
                     }`}
                     onClick={() => {
@@ -562,7 +588,7 @@ export default function HotelBookingPage(): React.ReactElement {
                   <div className="relative">
                     <span className="absolute left-3 top-2">$</span>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="Min"
                       className="w-full pl-7 p-2 border border-gray-300 rounded"
                       value={filterState.priceRange.min}
@@ -579,7 +605,7 @@ export default function HotelBookingPage(): React.ReactElement {
                   <div className="relative">
                     <span className="absolute left-3 top-2">$</span>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="Max"
                       className="w-full pl-7 p-2 border border-gray-300 rounded"
                       value={filterState.priceRange.max}
@@ -622,7 +648,7 @@ export default function HotelBookingPage(): React.ReactElement {
             <div className="mb-6">
               <h3 className="text-lg font-medium mb-3">Room Capacity</h3>
               <div className="space-y-2">
-                {["Single", "Double", "Triple", "Quad", "Family"].map((capacity) => (
+                {roomCapacity.map((capacity) => (
                   <label key={capacity} className="flex items-center">
                     <input
                       type="checkbox"
