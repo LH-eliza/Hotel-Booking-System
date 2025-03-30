@@ -5,7 +5,7 @@ const roomAmenityQuery = `
 Select distinct amenity from roomamenity
 `;
 
-export async function GET(request) {
+export async function GET() {
     try {
       const result = await pool.query(roomAmenityQuery);
 

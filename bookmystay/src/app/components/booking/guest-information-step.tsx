@@ -217,7 +217,7 @@ export default function GuestInformationStep({
               onChange={(e) => updateGuestInfo({ idType: e.target.value })}
             >
               <option value="passport">Passport</option>
-              <option value="driver_license">Driver's License</option>
+              <option value="driver_license">Driver&apos;s License</option>
               <option value="national_id">National ID</option>
               <option value="ssn">Social Security Number</option>
             </select>

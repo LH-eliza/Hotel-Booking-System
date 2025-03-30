@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "../../../../db";
 
-export async function GET(request) {
+export async function GET() {
   const query = `
     select * from room
   `;

@@ -9,7 +9,7 @@ FROM
   hotel;
 `;
 
-export async function GET(request) {
+export async function GET() {
     try {
       // Run the predefined query to get neighborhoods
       const result = await pool.query(neighborhoodQuery);

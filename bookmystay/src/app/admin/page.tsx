@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import {
-  Search,
   Hotel,
   Users,
   User,
@@ -67,39 +66,6 @@ interface Booking {
   endDate: string;
   status: string;
 }
-
-const mockHotels: Hotel[] = [
-  {
-    id: 101,
-    name: 'Luxury Stays Downtown',
-    chain: 'Luxury Stays',
-    category: '5-star',
-    rooms: 120,
-    address: '789 Main St, New York, NY',
-    email: 'downtown@luxurystays.com',
-    phone: '212-555-2345',
-  },
-  {
-    id: 102,
-    name: 'Luxury Stays Central Park',
-    chain: 'Luxury Stays',
-    category: '4-star',
-    rooms: 95,
-    address: '456 Park Ave, New York, NY',
-    email: 'centralpark@luxurystays.com',
-    phone: '212-555-3456',
-  },
-  {
-    id: 201,
-    name: 'ComfortInn Lakeview',
-    chain: 'ComfortInn Group',
-    category: '3-star',
-    rooms: 85,
-    address: '123 Lake Dr, Chicago, IL',
-    email: 'lakeview@comfortinn.com',
-    phone: '312-555-7890',
-  },
-];
 
 const mockRooms: Room[] = [
   {
@@ -252,7 +218,6 @@ const AdminDashboard: React.FC = () => {
   const [rooms, setRooms] = useState([]);
   const [rentings, setRentings] = useState([]);
   const [managers, setManagers] = useState([]);
-  const [availableRooms, setAvailableRooms] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [bookingsList, setBookingsList] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -436,25 +401,6 @@ const AdminDashboard: React.FC = () => {
       }
     } catch (error) {
       console.log(error);
-    }
-  };
-
-  const fetchAvailableRooms = async () => {
-    const availRoomsQuery = `
-    select * from room where status = 'Available'
-  `;
-    try {
-      // Send the query to the backend via GET request
-      const response = await fetch(`/api/data?query=${encodeURIComponent(availRoomsQuery)}`);
-
-      if (response.ok) {
-        const jsonData = await response.json();
-        setAvailableRooms(jsonData); // Store the data in state
-      } else {
-        throw new Error('Failed to fetch data');
-      }
-    } catch (error) {
-      console.log(error.message); // Set the error message
     }
   };
 
@@ -1205,7 +1151,6 @@ const AdminDashboard: React.FC = () => {
           fetchHotelCount(),
           fetchCustomerCount(),
           fetchBookings(),
-          fetchAvailableRooms(),
           fetchHotelCapacity(),
           fetchHotelChains(),
           fetchRooms(),

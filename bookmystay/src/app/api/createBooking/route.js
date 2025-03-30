@@ -14,6 +14,7 @@ export default async function handler(req, res) {
 
       res.status(201).json({ message: 'Booking created successfully' });
     } catch (error) {
+      console.error('Error creating booking:', error);
       res.status(500).json({ error: 'Failed to create booking' });
     }
   } else {

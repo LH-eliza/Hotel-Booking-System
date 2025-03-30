@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, ChevronDown, Heart } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import SimpleDatePicker from "../components/datepicker";
 import Header from "../components/header";
 import Footer from "../components/footer";
@@ -49,6 +49,7 @@ export default function HotelBookingPage(): React.ReactElement {
     fetchRoomCapacity();
     fetchAmenities();
     fetchViewTypes();
+    console.log(error)
   }, []);
 
   // Update the form data effect to also update filter state
@@ -246,7 +247,6 @@ export default function HotelBookingPage(): React.ReactElement {
     hotelChain: "",
   });
 
-  const [propertiesFound, setPropertiesFound] = useState(5);
   const [sortOption, setSortOption] = useState("Recommended");
 
   const handleSortChange = (value: string) => {

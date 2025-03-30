@@ -25,6 +25,7 @@ export default async function handler(req, res) {
 
       res.status(201).json({ customer_id: customerID });
     } catch (error) {
+      console.error('Error creating customer:', error);
       res.status(500).json({ error: 'Failed to create customer' });
     }
   } else {

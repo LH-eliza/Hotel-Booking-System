@@ -5,7 +5,7 @@ const roomCapacityQuery = `
 Select distinct capacity from room
 `;
 
-export async function GET(request) {
+export async function GET() {
     try {
       const result = await pool.query(roomCapacityQuery);
   

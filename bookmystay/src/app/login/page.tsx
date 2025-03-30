@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 import Header from "../components/header";
 import Footer from "../components/footer";
 
@@ -72,7 +71,7 @@ const LoginPage: React.FC = () => {
 
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600">
-                    Don't have an account?
+                    Don&apos;t have an account?
                     <Link href="/signup">
                       <span className="ml-1 text-blue-500 hover:underline">
                         Sign Up

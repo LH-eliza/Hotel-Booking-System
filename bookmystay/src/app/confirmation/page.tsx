@@ -108,9 +108,8 @@ export default function BookingConfirmationPage() {
     const roomIds = searchParams?.get("roomIds")?.split(",") || [];
     const dates = searchParams?.get("dates") || "";
     const guests = searchParams?.get("guests") || "";
+    console.log(hotelId)
 
-    // This would typically be an API call to fetch hotel and room details
-    // Simulating API call with mock data
     setTimeout(() => {
       const hotelData: Hotel = {
         id: 1,
@@ -237,7 +236,7 @@ export default function BookingConfirmationPage() {
             Booking Not Found
           </h2>
           <p className="text-gray-600 mt-2">
-            We couldn't find the booking details you're looking for.
+            We couldn&apos;t find the booking details you&apos;re looking for.
           </p>
           <button
             onClick={goToHomepage}

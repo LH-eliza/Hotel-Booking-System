@@ -37,7 +37,6 @@ interface BookingSummaryProps {
 
 export default function BookingSummary({
   bookingDetails,
-  getTotalPrice,
   getTaxesAndFees,
   getFinalTotal,
   isConfirmed,

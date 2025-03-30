@@ -20,6 +20,7 @@ export async function GET(request) {
     return NextResponse.json(result.rows); // Return the query results as JSON
   } catch (error) {
     console.error(error);
+    // Handle any errors that occur during the database query
     return NextResponse.json(
       { error: "Database query failed", message: error.message },
       { status: 500 }

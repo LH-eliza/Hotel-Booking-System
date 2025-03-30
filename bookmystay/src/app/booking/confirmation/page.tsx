@@ -440,7 +440,7 @@ export default function BookingConfirmationPage() {
                     <option value="">Select ID Type</option>
                     <option value="SSN">Social Security Number (SSN)</option>
                     <option value="SIN">Social Insurance Number (SIN)</option>
-                    <option value="DL">Driver's License</option>
+                    <option value='DL'>Driver&apos;s License</option>
                     <option value="Passport">Passport</option>
                   </select>
                 </div>

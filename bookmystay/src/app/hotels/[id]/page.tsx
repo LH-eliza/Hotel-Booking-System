@@ -372,7 +372,7 @@ export default function HotelDetailPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800">Hotel Not Found</h2>
           <p className="text-gray-600 mt-2">
-            The hotel you're looking for doesn't exist or has been removed.
+            The hotel you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
           <button
             onClick={goBack}

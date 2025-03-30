@@ -48,7 +48,6 @@ const StarDisplay = ({ count }: { count: number }) => (
 );
 
 const HotelList: React.FC<HotelListProps> = ({
-  propertiesFound,
   sortOption,
   onSortChange,
   filterState,

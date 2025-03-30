@@ -171,7 +171,7 @@ export default function ConfirmationStep({
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-        <h3 className="text-lg font-medium text-blue-800 mb-2">What's Next?</h3>
+        <h3 className="text-lg font-medium text-blue-800 mb-2">What&apos;s Next?</h3>
         <p className="text-blue-700 mb-3">
           A confirmation email has been sent to {guestInfo.email} with all your
           booking details.

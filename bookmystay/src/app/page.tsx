@@ -1,8 +1,8 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ChevronDown, Menu } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import Background from "./components/background";
 import SimpleDatePicker from "./components/datepicker";
 
@@ -24,7 +24,7 @@ const HotelSearchPage: React.FC = () => {
   const [destinations, setDestinations] = useState([]);
   const [hotels, setHotels] = useState([]);
   const [roomCapacity, setRoomCapacity] = useState([]);
-  const [query, setQuery] = useState("SELECT * FROM Customer"); 
+  const [query] = useState("SELECT * FROM Customer"); 
   const [data, setData] = useState(null); 
   const [error, setError] = useState(""); 
   const router = useRouter();
@@ -106,6 +106,7 @@ const HotelSearchPage: React.FC = () => {
       if (response.ok) {
         const jsonData = await response.json();
         setData(jsonData); 
+        console.log(data, error)
         setError("");
       } else {
         throw new Error("Failed to fetch data");

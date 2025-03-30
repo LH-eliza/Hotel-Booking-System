@@ -5,7 +5,7 @@ const hotelChainQuery = `
 Select room_id from room
 `;
 
-export async function GET(request) {
+export async function GET() {
     try {
       const result = await pool.query(hotelChainQuery);
   

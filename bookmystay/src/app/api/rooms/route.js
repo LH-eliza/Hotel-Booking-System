@@ -36,7 +36,7 @@ const viewTypesQuery = `
   ORDER BY view;
 `;
 
-export async function GET(request) {
+export async function GET() {
   try {
     const result = await pool.query(roomQuery);
     const viewTypesResult = await pool.query(viewTypesQuery);

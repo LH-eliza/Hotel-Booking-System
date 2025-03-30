@@ -293,7 +293,7 @@ export default function BookingConfirmationPage() {
             Booking Not Found
           </h2>
           <p className="text-gray-600 mt-2">
-            We couldn't find the booking details you're looking for.
+            We couldn&apos;t find the booking details you&apos;re looking for.
           </p>
           <button
             onClick={goToHomepage}
