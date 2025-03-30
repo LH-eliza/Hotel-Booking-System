@@ -246,7 +246,7 @@ export default function HotelDetailPage() {
   const searchParams = useSearchParams();
   const hotelId = typeof params.id === "string" ? parseInt(params.id) : -1;
 
-  const [hotel, setHotel] = useState<any>(null);
+  const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [dateRange, setDateRange] = useState<string>("03-05-2025 | 03-06-2025");
@@ -254,7 +254,7 @@ export default function HotelDetailPage() {
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [openGuestSelector, setOpenGuestSelector] = useState(false);
   const [selectedTab, setSelectedTab] = useState("rooms");
-  const [filteredRooms, setFilteredRooms] = useState<any[]>([]);
+  const [filteredRooms, setFilteredRooms] = useState([]);
   const [priceSort, setPriceSort] = useState<"asc" | "desc" | null>(null);
   const [selectedRoomIds, setSelectedRoomIds] = useState<number[]>([]);
 
@@ -283,7 +283,7 @@ export default function HotelDetailPage() {
 
   useEffect(() => {
     if (hotel && hotel.rooms) {
-      let rooms = [...hotel.rooms];
+      const rooms = [...hotel.rooms];
 
       // Apply price sorting if selected
       if (priceSort === "asc") {

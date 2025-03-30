@@ -50,7 +50,7 @@ const SignUpPage: React.FC = () => {
       } else {
         router.push("/dashboard");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Registration error:", error);
       setError(error.message || "Failed to create account. Please try again.");
     } finally {
@@ -66,7 +66,7 @@ const SignUpPage: React.FC = () => {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google sign-up successful:", result.user);
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Google sign-up error:", error);
       setError(error.message || "Failed to sign up with Google. Please try again.");
     } finally {
