@@ -1,21 +1,68 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import Header from "../components/header";
-import Footer from "../components/footer";
+import React, { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
+import Header from '../components/header';
+import Footer from '../components/footer';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/app/firebase/config';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { isAdminDomain } from '../utils/adminCheck';
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const googleProvider = new GoogleAuthProvider();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log({ email, password });
+    setError('');
+    setLoading(true);
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      console.log('User logged in successfully:', userCredential.user);
+
+      if (isAdminDomain(email)) {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setError(error.message || 'Failed to login. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log('Google login successful:', result.user);
+
+      if (isAdminDomain(result.user.email || '')) {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      setError(error.message || 'Failed to login with Google. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,16 +75,16 @@ const LoginPage: React.FC = () => {
             <div className="w-full bg-white p-8 md:w-1/2">
               <div className="mx-auto max-w-md">
                 <h1 className="text-3xl font-bold">Login to Your Account</h1>
-                <p className="mt-2 text-gray-600">
-                  Escape & Explore – Start Your Journey!
-                </p>
+                <p className="mt-2 text-gray-600">Escape & Explore – Start Your Journey!</p>
+
+                {error && <div className="mt-4 rounded bg-red-100 p-3 text-red-600">{error}</div>}
 
                 <form onSubmit={handleSubmit} className="mt-8 space-y-4">
                   <div>
                     <input
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={e => setEmail(e.target.value)}
                       placeholder="Enter Your Email"
                       className="w-full rounded border border-gray-300 p-3 focus:border-indigo-500 focus:outline-none"
                       required
@@ -46,9 +93,9 @@ const LoginPage: React.FC = () => {
 
                   <div className="relative">
                     <input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={e => setPassword(e.target.value)}
                       placeholder="Enter Your Password"
                       className="w-full rounded border border-gray-300 p-3 pr-10 focus:border-indigo-500 focus:outline-none"
                       required
@@ -61,21 +108,47 @@ const LoginPage: React.FC = () => {
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
+
                   <button
                     type="submit"
-                    className="w-full rounded bg-indigo-500 p-3 text-white transition hover:bg-indigo-600"
+                    disabled={loading}
+                    className={`w-full rounded bg-indigo-500 p-3 text-white transition hover:bg-indigo-600 ${
+                      loading ? 'cursor-not-allowed opacity-70' : ''
+                    }`}
                   >
-                    Login
+                    {loading ? 'Logging in...' : 'Login'}
                   </button>
                 </form>
+
+                <div className="mt-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <button
+                      onClick={handleGoogleLogin}
+                      disabled={loading}
+                      className={`flex w-full items-center justify-center rounded border border-gray-300 bg-white p-3 text-gray-700 shadow-sm transition hover:bg-gray-50 ${
+                        loading ? 'cursor-not-allowed opacity-70' : ''
+                      }`}
+                    >
+                      <FcGoogle className="mr-2 h-5 w-5" />
+                      <span>Login with Google</span>
+                    </button>
+                  </div>
+                </div>
 
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600">
                     Don&apos;t have an account?
                     <Link href="/signup">
-                      <span className="ml-1 text-blue-500 hover:underline">
-                        Sign Up
-                      </span>
+                      <span className="ml-1 text-blue-500 hover:underline">Sign Up</span>
                     </Link>
                   </p>
                 </div>
