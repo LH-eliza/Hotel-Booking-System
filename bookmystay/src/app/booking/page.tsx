@@ -33,7 +33,7 @@ interface FilterState {
   hotelChain: string;
 }
 
-export default function HotelBookingPage(): React.ReactElement {
+function BookingContent(): React.ReactElement {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [destinations, setDestinations] = useState([]);
@@ -691,5 +691,13 @@ export default function HotelBookingPage(): React.ReactElement {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function HotelBookingPage(): React.ReactElement {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BookingContent />
+    </Suspense>
   );
 }
