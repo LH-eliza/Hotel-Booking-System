@@ -37,9 +37,8 @@ interface BookingDetails {
   isAvailable: boolean;
 }
 
-export default function BookingConfirmationPage() {
+export default function BookingConfirmationPage({ searchParams, }: { searchParams: { [key: string]: string | string[] |  undefined }; }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [guestInfo, setGuestInfo] = useState<GuestInfo>({
     firstName: "",
     lastName: "",
@@ -61,19 +60,21 @@ export default function BookingConfirmationPage() {
 
   useEffect(() => {
     // Get booking details from URL parameters
-    const hotelId = searchParams.get('hotelId');
-    const chainId = searchParams.get('chainId');
-    const roomNumber = searchParams.get('roomNumber');
-    const price = searchParams.get('price');
-    const checkIn = searchParams.get('checkIn');
-    const checkOut = searchParams.get('checkOut');
-    const amenities = searchParams.get('amenities')?.split(',') || [];
-    const starCategory = searchParams.get('starCategory');
-    const neighborhood = searchParams.get('neighborhood');
-    const address = searchParams.get('address');
-    const capacity = searchParams.get('capacity');
-    const view = searchParams.get('view');
-    const isAvailable = searchParams.get('isAvailable') === 'true';
+    const hotelId = searchParams.hotelId as string | undefined;
+    const chainId = searchParams.chainId as string | undefined;
+    const roomNumber = searchParams.roomNumber as string | undefined;
+    const price = searchParams.price as string | undefined;
+    const checkIn = searchParams.checkIn as string | undefined;
+    const checkOut = searchParams.checkOut as string | undefined;
+    const amenitiesSearch = searchParams.amenities as string | undefined;
+    const amenities = amenitiesSearch?.split(',') || [];
+    const starCategory = searchParams.starCategory as string | undefined;
+    const neighborhood = searchParams.neighborhood as string | undefined;
+    const address = searchParams.address as string | undefined;
+    const capacity = searchParams.capacity as string | undefined;
+    const view = searchParams.view as string | undefined;
+    const availableSearch = searchParams.isAvailable as string | undefined;
+    const isAvailable = availableSearch === 'true';
 
     // Log the parameters for debugging
     console.log('URL Parameters:', {
@@ -440,7 +441,7 @@ export default function BookingConfirmationPage() {
                     <option value="">Select ID Type</option>
                     <option value="SSN">Social Security Number (SSN)</option>
                     <option value="SIN">Social Insurance Number (SIN)</option>
-                    <option value='DL'>Driver&apos;s License</option>
+                    <option value="DL">Driver's License</option>
                     <option value="Passport">Passport</option>
                   </select>
                 </div>
