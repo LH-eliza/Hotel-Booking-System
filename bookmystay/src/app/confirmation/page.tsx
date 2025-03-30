@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { User, CreditCard, Check } from "lucide-react";
 
 import Header from "../components/header";
@@ -65,9 +65,8 @@ export interface PaymentInfo {
   cvv?: string;
 }
 
-export default function BookingConfirmationPage() {
+export default function BookingConfirmationPage({ searchParams, }: { searchParams: { [key: string]: string | string[] |  undefined }; }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(
@@ -104,10 +103,11 @@ export default function BookingConfirmationPage() {
   const [bookingDate, setBookingDate] = useState("");
 
   useEffect(() => {
-    const hotelId = searchParams?.get("hotelId");
-    const roomIds = searchParams?.get("roomIds")?.split(",") || [];
-    const dates = searchParams?.get("dates") || "";
-    const guests = searchParams?.get("guests") || "";
+    const hotelId = searchParams.hotelId as string ||  ""; 
+    const searchRoomIds = searchParams.roomIds as string ||  "";
+    const roomIds = searchRoomIds?.split(",") || [];
+    const dates = searchParams.dates as string || "";
+    const guests = searchParams.guests as string || "";
     console.log(hotelId)
 
     setTimeout(() => {

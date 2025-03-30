@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   StarIcon,
   ArrowLeft,
@@ -240,10 +240,9 @@ interface GuestData {
   displayText: string;
 }
 
-export default function HotelDetailPage() {
+export default function HotelDetailPage({ searchParams, }: { searchParams: { [key: string]: string | string[] |  undefined }; }) {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const hotelId = typeof params.id === "string" ? parseInt(params.id) : -1;
 
   const [hotel, setHotel] = useState(null);
@@ -260,7 +259,7 @@ export default function HotelDetailPage() {
 
   // Get the initial tab from query param if available
   useEffect(() => {
-    const tab = searchParams.get("tab");
+    const tab = searchParams.tab as string | undefined;
     if (tab && ["rooms", "details", "amenities", "policies"].includes(tab)) {
       setSelectedTab(tab);
     }
