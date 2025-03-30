@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ChevronDown } from "lucide-react";
 import SimpleDatePicker from "../components/datepicker";
@@ -709,11 +709,13 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
           </div>
 
           {/* Hotels List Section */}
+          <Suspense fallback={<div>Loading hotels...</div>}>
           <HotelList
             sortOption={sortOption}
             onSortChange={handleSortChange}
             filterState={filterState}
           />
+          </Suspense>
         </div>
       </div>
       <Footer />
