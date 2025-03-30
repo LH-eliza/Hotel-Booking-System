@@ -322,7 +322,7 @@ export default function HotelDetailPage() {
     if (!hotel) return 0;
 
     return selectedRoomIds.reduce((total, roomId) => {
-      const room = hotel.rooms.find((r: any) => r.id === roomId);
+      const room = hotel.rooms.find((r) => r.id === roomId);
       if (room) {
         return total + (room.discountPrice || room.price);
       }
