@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '../../components/header';
 import Footer from '../../components/footer';
@@ -37,7 +37,7 @@ interface BookingDetails {
   isAvailable: boolean;
 }
 
-export default function BookingConfirmationPage(): React.ReactElement {
+function ConfirmationContent(): React.ReactElement {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [guestInfo, setGuestInfo] = useState<GuestInfo>({
@@ -506,5 +506,23 @@ export default function BookingConfirmationPage(): React.ReactElement {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function BookingConfirmationPage(): React.ReactElement {
+  return (
+    <Suspense
+      fallback={
+        <div>
+          <Header />
+          <div className="container mx-auto px-4 py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          </div>
+          <Footer />
+        </div>
+      }
+    >
+      <ConfirmationContent />
+    </Suspense>
   );
 }
