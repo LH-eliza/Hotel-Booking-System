@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Search, ChevronDown } from "lucide-react";
 import SimpleDatePicker from "../components/datepicker";
 import Header from "../components/header";
@@ -33,9 +33,8 @@ interface FilterState {
   hotelChain: string;
 }
 
-export default function HotelBookingPage(): React.ReactElement {
+export default function HotelBookingPage( { searchParams, }: { searchParams: { [key: string]: string | string[] |  undefined }; }): React.ReactElement {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [destinations, setDestinations] = useState([]);
   const [hotels, setHotels] = useState([]);
   const [roomCapacity, setRoomCapacity] = useState([]);
@@ -54,11 +53,11 @@ export default function HotelBookingPage(): React.ReactElement {
 
   // Update the form data effect to also update filter state
   useEffect(() => {
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
-    const hotel = searchParams.get('hotel');
-    const destination = searchParams.get('destination');
-    const capacity = searchParams.get('capacity');
+    const startDate = searchParams.startDate as string | undefined;
+    const endDate = searchParams.endDate as string | undefined;
+    const hotel = searchParams.hotel as string | undefined;
+    const destination = searchParams.destination as string | undefined;
+    const capacity = searchParams.capacity as string | undefined;
 
     if (startDate && endDate) {
       setFormData(prev => ({
@@ -215,6 +214,9 @@ export default function HotelBookingPage(): React.ReactElement {
     // Update filter state when selecting options
     if (name === 'destination') {
       setFilterState(prev => ({ ...prev, destination: value }));
+    }
+    if (name === 'hotel') {
+      setFilterState(prev => ({ ...prev, hotelChain: value }));
     }
     if (name === 'capacity') {
       setFilterState(prev => ({ ...prev, roomCapacity: [value] }));
