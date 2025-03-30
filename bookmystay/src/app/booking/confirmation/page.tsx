@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Header from "../../components/header";
-import Footer from "../../components/footer";
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Header from '../../components/header';
+import Footer from '../../components/footer';
 
 interface GuestInfo {
   firstName: string;
@@ -37,22 +37,23 @@ interface BookingDetails {
   isAvailable: boolean;
 }
 
-export default function BookingConfirmationPage({ searchParams, }: { searchParams: { [key: string]: string | string[] |  undefined }; }) {
+export default function BookingConfirmationPage(): React.ReactElement {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [guestInfo, setGuestInfo] = useState<GuestInfo>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    street: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "",
-    idType: "SSN",
-    idNumber: "",
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    street: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: '',
+    idType: 'SSN',
+    idNumber: '',
     registrationDate: new Date().toISOString().split('T')[0],
-    specialRequests: "",
+    specialRequests: '',
   });
   const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,20 +61,20 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
 
   useEffect(() => {
     // Get booking details from URL parameters
-    const hotelId = searchParams.hotelId as string | undefined;
-    const chainId = searchParams.chainId as string | undefined;
-    const roomNumber = searchParams.roomNumber as string | undefined;
-    const price = searchParams.price as string | undefined;
-    const checkIn = searchParams.checkIn as string | undefined;
-    const checkOut = searchParams.checkOut as string | undefined;
-    const amenitiesSearch = searchParams.amenities as string | undefined;
+    const hotelId = searchParams.get('hotelId') || undefined;
+    const chainId = searchParams.get('chainId') || undefined;
+    const roomNumber = searchParams.get('roomNumber') || undefined;
+    const price = searchParams.get('price') || undefined;
+    const checkIn = searchParams.get('checkIn') || undefined;
+    const checkOut = searchParams.get('checkOut') || undefined;
+    const amenitiesSearch = searchParams.get('amenities') || undefined;
     const amenities = amenitiesSearch?.split(',') || [];
-    const starCategory = searchParams.starCategory as string | undefined;
-    const neighborhood = searchParams.neighborhood as string | undefined;
-    const address = searchParams.address as string | undefined;
-    const capacity = searchParams.capacity as string | undefined;
-    const view = searchParams.view as string | undefined;
-    const availableSearch = searchParams.isAvailable as string | undefined;
+    const starCategory = searchParams.get('starCategory') || undefined;
+    const neighborhood = searchParams.get('neighborhood') || undefined;
+    const address = searchParams.get('address') || undefined;
+    const capacity = searchParams.get('capacity') || undefined;
+    const view = searchParams.get('view') || undefined;
+    const availableSearch = searchParams.get('isAvailable') || undefined;
     const isAvailable = availableSearch === 'true';
 
     // Log the parameters for debugging
@@ -90,12 +91,14 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
       address,
       capacity,
       view,
-      isAvailable
+      isAvailable,
     });
 
     // Set default dates if not provided
     const defaultCheckIn = new Date().toISOString().split('T')[0];
-    const defaultCheckOut = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const defaultCheckOut = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0];
 
     // Create booking details with defaults where needed
     const bookingData: BookingDetails = {
@@ -116,7 +119,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
 
     // Validate required fields
     if (!hotelId || !chainId) {
-      setError("Missing required hotel information. Please try booking again.");
+      setError('Missing required hotel information. Please try booking again.');
     } else {
       setBookingDetails(bookingData);
     }
@@ -125,7 +128,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     try {
       // Step 1: Check if customer exists
       const checkCustomerQuery = {
@@ -136,29 +139,30 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
         `,
         values: [guestInfo.idType, guestInfo.idNumber],
       };
-  
+
       const customerResponse = await fetch('/api/runQuery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(checkCustomerQuery),
       });
-  
+
       if (!customerResponse.ok) {
         throw new Error('Failed to check customer existence');
       }
-  
+
       const customerData = await customerResponse.json();
       let customerId;
-  
+
       if (customerData.length > 0) {
         // Customer exists
         customerId = customerData[0].customer_id;
         console.log('Existing customer ID:', customerId);
       } else {
         // Step 2: Create a new customer
-        const fullAddress = `${guestInfo.street}, ${guestInfo.city}, ${guestInfo.state}, ${guestInfo.postalCode}, ${guestInfo.country}`.trim();
+        const fullAddress =
+          `${guestInfo.street}, ${guestInfo.city}, ${guestInfo.state}, ${guestInfo.postalCode}, ${guestInfo.country}`.trim();
         const newCustomerId = `CUST${Math.floor(1000 + Math.random() * 9000)}`;
-  
+
         const createCustomerQuery = {
           query: `
             INSERT INTO customer (customer_id, first_name, last_name, address, id_type, id_number, registration_date)
@@ -173,21 +177,21 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
             guestInfo.idNumber,
           ],
         };
-  
+
         const createCustomerResponse = await fetch('/api/runQuery', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(createCustomerQuery),
         });
-  
+
         if (!createCustomerResponse.ok) {
           throw new Error('Failed to create new customer');
         }
-  
+
         customerId = newCustomerId;
         console.log('New customer ID:', customerId);
       }
-  
+
       // Step 3: Create booking
       const bookingId = Math.floor(1000 + Math.random() * 9000);
 
@@ -204,27 +208,25 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
           bookingDetails?.roomNumber,
         ],
       };
-  
+
       const bookingResponse = await fetch('/api/runQuery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bookingQuery),
       });
-  
+
       if (!bookingResponse.ok) {
         throw new Error('Failed to create booking');
       }
-  
+
       // Success Message & Redirect
-      alert("Booking confirmed! Thank you for choosing our service.");
+      alert('Booking confirmed! Thank you for choosing our service.');
       router.push('/');
-  
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred. Please try again.');
     }
   };
-  
 
   if (loading) {
     return (
@@ -243,7 +245,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
       <div>
         <Header />
         <div className="container mx-auto px-4 py-8">
-          <div className="text-red-600 text-center">{error || "Booking details not found"}</div>
+          <div className="text-red-600 text-center">{error || 'Booking details not found'}</div>
         </div>
         <Footer />
       </div>
@@ -260,12 +262,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
             onClick={() => router.back()}
             className="px-4 py-2 text-purple-700 hover:text-purple-800 flex items-center gap-2"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -276,7 +273,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
             Back to Search
           </button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Booking Details */}
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -290,16 +287,24 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                 <p>Address: {bookingDetails.address}</p>
                 <p className="text-sm text-gray-600">Neighborhood: {bookingDetails.neighborhood}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-yellow-400">{Array(bookingDetails.starCategory).fill('★').join('')}</span>
-                  <span className="text-sm text-gray-600">({bookingDetails.starCategory}-Star)</span>
+                  <span className="text-yellow-400">
+                    {Array(bookingDetails.starCategory).fill('★').join('')}
+                  </span>
+                  <span className="text-sm text-gray-600">
+                    ({bookingDetails.starCategory}-Star)
+                  </span>
                 </div>
                 <p className="mt-2">Capacity: {bookingDetails.capacity}</p>
                 {bookingDetails.view && <p>View: {bookingDetails.view}</p>}
-                <p className={`mt-2 ${bookingDetails.isAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                <p
+                  className={`mt-2 ${
+                    bookingDetails.isAvailable ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
                   Status: {bookingDetails.isAvailable ? 'Available' : 'Not Available'}
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-medium">Dates</h3>
                 <p>Check-in: {new Date(bookingDetails.checkIn).toLocaleDateString()}</p>
@@ -317,7 +322,9 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
 
               <div>
                 <h3 className="font-medium">Price</h3>
-                <p className="text-2xl font-bold text-purple-700">${bookingDetails.price.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-purple-700">
+                  ${bookingDetails.price.toFixed(2)}
+                </p>
                 <p className="text-sm text-gray-600">per night</p>
               </div>
             </div>
@@ -335,7 +342,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                     required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     value={guestInfo.firstName}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, firstName: e.target.value })}
+                    onChange={e => setGuestInfo({ ...guestInfo, firstName: e.target.value })}
                   />
                 </div>
                 <div>
@@ -345,7 +352,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                     required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     value={guestInfo.lastName}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, lastName: e.target.value })}
+                    onChange={e => setGuestInfo({ ...guestInfo, lastName: e.target.value })}
                   />
                 </div>
               </div>
@@ -357,7 +364,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                   required
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   value={guestInfo.email}
-                  onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
+                  onChange={e => setGuestInfo({ ...guestInfo, email: e.target.value })}
                 />
               </div>
 
@@ -368,7 +375,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                   required
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   value={guestInfo.phone}
-                  onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
+                  onChange={e => setGuestInfo({ ...guestInfo, phone: e.target.value })}
                 />
               </div>
 
@@ -379,7 +386,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                   required
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   value={guestInfo.street}
-                  onChange={(e) => setGuestInfo({ ...guestInfo, street: e.target.value })}
+                  onChange={e => setGuestInfo({ ...guestInfo, street: e.target.value })}
                 />
               </div>
 
@@ -391,7 +398,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                     required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     value={guestInfo.city}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, city: e.target.value })}
+                    onChange={e => setGuestInfo({ ...guestInfo, city: e.target.value })}
                   />
                 </div>
                 <div>
@@ -401,7 +408,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                     required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     value={guestInfo.state}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, state: e.target.value })}
+                    onChange={e => setGuestInfo({ ...guestInfo, state: e.target.value })}
                   />
                 </div>
               </div>
@@ -414,7 +421,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                     required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     value={guestInfo.postalCode}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, postalCode: e.target.value })}
+                    onChange={e => setGuestInfo({ ...guestInfo, postalCode: e.target.value })}
                   />
                 </div>
                 <div>
@@ -424,7 +431,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                     required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     value={guestInfo.country}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, country: e.target.value })}
+                    onChange={e => setGuestInfo({ ...guestInfo, country: e.target.value })}
                   />
                 </div>
               </div>
@@ -436,7 +443,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                     required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     value={guestInfo.idType}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, idType: e.target.value })}
+                    onChange={e => setGuestInfo({ ...guestInfo, idType: e.target.value })}
                   >
                     <option value="">Select ID Type</option>
                     <option value="SSN">Social Security Number (SSN)</option>
@@ -452,7 +459,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                     required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                     value={guestInfo.idNumber}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, idNumber: e.target.value })}
+                    onChange={e => setGuestInfo({ ...guestInfo, idNumber: e.target.value })}
                   />
                 </div>
               </div>
@@ -464,7 +471,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                   required
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   value={guestInfo.registrationDate}
-                  onChange={(e) => setGuestInfo({ ...guestInfo, registrationDate: e.target.value })}
+                  onChange={e => setGuestInfo({ ...guestInfo, registrationDate: e.target.value })}
                 />
               </div>
 
@@ -474,7 +481,7 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   rows={4}
                   value={guestInfo.specialRequests}
-                  onChange={(e) => setGuestInfo({ ...guestInfo, specialRequests: e.target.value })}
+                  onChange={e => setGuestInfo({ ...guestInfo, specialRequests: e.target.value })}
                 />
               </div>
 
@@ -500,4 +507,4 @@ export default function BookingConfirmationPage({ searchParams, }: { searchParam
       <Footer />
     </div>
   );
-} 
+}

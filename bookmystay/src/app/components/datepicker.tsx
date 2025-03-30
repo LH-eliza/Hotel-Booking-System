@@ -1,4 +1,4 @@
-import React, { JSX, useState, useEffect } from "react";
+import React, { JSX, useState, useEffect } from 'react';
 
 interface DateRange {
   startDate: string;
@@ -9,6 +9,8 @@ interface MonthData {
   name: string;
   days: number;
   startDay: number;
+  year: number;
+  month: number;
 }
 
 interface SimpleDatePickerProps {
@@ -16,14 +18,11 @@ interface SimpleDatePickerProps {
   initialDateRange?: DateRange;
 }
 
-const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
-  onDateChange,
-  initialDateRange,
-}) => {
+const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({ onDateChange, initialDateRange }) => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [dateRange, setDateRange] = useState<DateRange>({
-    startDate: "",
-    endDate: "",
+    startDate: '',
+    endDate: '',
   });
 
   // Initialize date range from props if provided
@@ -39,20 +38,24 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
 
   const months: MonthData[] = [
     {
-      name: new Date(currentYear, currentMonth).toLocaleString("default", {
-        month: "long",
-        year: "numeric",
+      name: new Date(currentYear, currentMonth).toLocaleString('default', {
+        month: 'long',
+        year: 'numeric',
       }),
       days: getDaysInMonth(currentYear, currentMonth),
       startDay: new Date(currentYear, currentMonth, 1).getDay(),
+      year: currentYear,
+      month: currentMonth,
     },
     {
-      name: new Date(currentYear, currentMonth + 1).toLocaleString("default", {
-        month: "long",
-        year: "numeric",
+      name: new Date(currentYear, currentMonth + 1).toLocaleString('default', {
+        month: 'long',
+        year: 'numeric',
       }),
       days: getDaysInMonth(currentYear, currentMonth + 1),
       startDay: new Date(currentYear, currentMonth + 1, 1).getDay(),
+      year: currentYear,
+      month: currentMonth + 1,
     },
   ];
 
@@ -66,27 +69,36 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
 
   const getDisplayText = (): string => {
     if (!dateRange.startDate && !dateRange.endDate) {
-      return "Check-in | Check-out";
+      return 'Check-in | Check-out';
     }
 
-    return `${dateRange.startDate || "..."} → ${dateRange.endDate || "..."}`;
+    return `${dateRange.startDate || '...'} → ${dateRange.endDate || '...'}`;
   };
 
-  const handleDateClick = (day: number, monthIndex: number, yearIndex: number): void => {
-    const selectedMonth = new Date(
-      currentYear,
-      currentMonth + monthIndex
-    ).toLocaleString("default", { month: "short" });
-    const formattedDate = `${selectedMonth} ${day} ${yearIndex}`;
+  const isDateInRange = (date: Date): boolean => {
+    if (!dateRange.startDate || !dateRange.endDate) return false;
+
+    const startDate = new Date(dateRange.startDate);
+    const endDate = new Date(dateRange.endDate);
+    return date >= startDate && date <= endDate;
+  };
+
+  const handleDateClick = (day: number, monthIndex: number, year: number): void => {
+    const selectedDate = new Date(year, months[monthIndex].month, day);
+    const formattedDate = selectedDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
 
     if (!dateRange.startDate || (dateRange.startDate && dateRange.endDate)) {
       setDateRange({
         startDate: formattedDate,
-        endDate: "",
+        endDate: '',
       });
     } else {
-      const startDateObj = new Date(`${dateRange.startDate}, ${currentYear}`);
-      const newDateObj = new Date(`${formattedDate}, ${currentYear}`);
+      const startDateObj = new Date(dateRange.startDate);
+      const newDateObj = new Date(formattedDate);
 
       if (newDateObj > startDateObj) {
         const updatedRange = {
@@ -99,14 +111,14 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
       } else {
         setDateRange({
           startDate: formattedDate,
-          endDate: "",
+          endDate: '',
         });
       }
     }
   };
 
   const renderMonth = (month: MonthData, monthIndex: number): JSX.Element => {
-    const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
+    const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
     const emptyCells = Array(month.startDay)
       .fill(null)
@@ -116,36 +128,34 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
       .fill(null)
       .map((_, i) => {
         const day = i + 1;
-        const dateString = new Date(
-          currentYear,
-          currentMonth + monthIndex,
-          day
-        ).toLocaleString("default", { month: "short" });
-        const formattedDate = `${dateString} ${day}`;
+        const currentDate = new Date(month.year, month.month, day);
+        const formattedDate = currentDate.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
 
         const isSelected =
-          dateRange.startDate === formattedDate ||
-          dateRange.endDate === formattedDate;
+          dateRange.startDate === formattedDate || dateRange.endDate === formattedDate;
+        const isInRange = isDateInRange(currentDate);
         const isToday =
           day === today.getDate() &&
-          monthIndex === 0 &&
-          currentMonth === today.getMonth();
+          month.month === today.getMonth() &&
+          month.year === today.getFullYear();
 
-        let cellClasses =
-          "w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ";
+        let cellClasses = 'w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ';
         if (isSelected) {
-          cellClasses += "bg-blue-500 text-white ";
+          cellClasses += 'bg-blue-500 text-white ';
+        } else if (isInRange) {
+          cellClasses += 'bg-blue-100 text-blue-600 ';
         } else if (isToday) {
-          cellClasses += "border border-blue-500 ";
+          cellClasses += 'border border-blue-500 ';
         } else {
-          cellClasses += "hover:bg-gray-100 ";
+          cellClasses += 'hover:bg-gray-100 ';
         }
 
         return (
-          <div
-            key={`day-${day}`}
-            onClick={() => handleDateClick(day, monthIndex, currentYear)}
-          >
+          <div key={`day-${day}`} onClick={() => handleDateClick(day, monthIndex, month.year)}>
             <div className={cellClasses}>{day}</div>
           </div>
         );
@@ -186,7 +196,10 @@ const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
             <div className="text-lg font-semibold">Select dates</div>
             <button
               className="text-blue-500 text-sm"
-              onClick={() => setDateRange({ startDate: "", endDate: "" })}
+              onClick={() => {
+                setDateRange({ startDate: '', endDate: '' });
+                onDateChange({ startDate: '', endDate: '' });
+              }}
             >
               Reset
             </button>

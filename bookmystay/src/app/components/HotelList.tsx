@@ -1,10 +1,9 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-
 
 interface FilterState {
   starRating: number[];
@@ -47,11 +46,7 @@ const StarDisplay = ({ count }: { count: number }) => (
   </div>
 );
 
-const HotelList: React.FC<HotelListProps> = ({
-  sortOption,
-  onSortChange,
-  filterState,
-}) => {
+const HotelList: React.FC<HotelListProps> = ({ sortOption, onSortChange, filterState }) => {
   const router = useRouter();
   const [rooms, setRooms] = React.useState<Room[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -74,7 +69,7 @@ const HotelList: React.FC<HotelListProps> = ({
       const data = await response.json();
       const formattedData = data.rooms.map((room: Room) => ({
         ...room,
-        price: typeof room.price === 'string' ? parseFloat(room.price) : room.price
+        price: typeof room.price === 'string' ? parseFloat(room.price) : room.price,
       }));
       setRooms(formattedData);
     } catch (err) {
@@ -90,25 +85,40 @@ const HotelList: React.FC<HotelListProps> = ({
   };
 
   const filterRooms = (rooms: Room[]): Room[] => {
+    console.log('Filtering rooms with state:', filterState);
     return rooms.filter(room => {
       // Hotel Chain Filter
-      if (filterState.hotelChain && !room.chainId.toLowerCase().includes(filterState.hotelChain.toLowerCase())) {
-        return false;
+      if (filterState.hotelChain) {
+        console.log('Checking hotel chain:', {
+          roomChainId: room.chainId,
+          filterChain: filterState.hotelChain,
+        });
+        if (room.chainId !== filterState.hotelChain) {
+          return false;
+        }
       }
 
       // Star Rating Filter
-      if (filterState.starRating.length > 0 && !filterState.starRating.includes(room.starCategory)) {
+      if (
+        filterState.starRating.length > 0 &&
+        !filterState.starRating.includes(room.starCategory)
+      ) {
         return false;
       }
 
       // Price Range Filter
       const price = parseFloat(formatPrice(room.price));
       const minPrice = filterState.priceRange.min ? parseFloat(filterState.priceRange.min) : 0;
-      const maxPrice = filterState.priceRange.max ? parseFloat(filterState.priceRange.max) : Infinity;
+      const maxPrice = filterState.priceRange.max
+        ? parseFloat(filterState.priceRange.max)
+        : Infinity;
       if (price < minPrice || price > maxPrice) return false;
 
       // Room Capacity Filter
-      if (filterState.roomCapacity.length > 0 && !filterState.roomCapacity.includes(room.capacity)) {
+      if (
+        filterState.roomCapacity.length > 0 &&
+        !filterState.roomCapacity.includes(room.capacity)
+      ) {
         return false;
       }
 
@@ -141,9 +151,13 @@ const HotelList: React.FC<HotelListProps> = ({
     const sortedRooms = [...rooms];
     switch (sortOption) {
       case 'Price: Low to High':
-        return sortedRooms.sort((a, b) => parseFloat(formatPrice(a.price)) - parseFloat(formatPrice(b.price)));
+        return sortedRooms.sort(
+          (a, b) => parseFloat(formatPrice(a.price)) - parseFloat(formatPrice(b.price)),
+        );
       case 'Price: High to Low':
-        return sortedRooms.sort((a, b) => parseFloat(formatPrice(b.price)) - parseFloat(formatPrice(a.price)));
+        return sortedRooms.sort(
+          (a, b) => parseFloat(formatPrice(b.price)) - parseFloat(formatPrice(a.price)),
+        );
       default:
         return sortedRooms;
     }
@@ -151,7 +165,7 @@ const HotelList: React.FC<HotelListProps> = ({
 
   const handleBookNow = (room: Room) => {
     if (!room.hotelId || !room.chainId) {
-      alert("Error: Missing required room information");
+      alert('Error: Missing required room information');
       return;
     }
 
@@ -161,7 +175,8 @@ const HotelList: React.FC<HotelListProps> = ({
       roomNumber: room.roomId || '',
       price: formatPrice(room.price),
       checkIn: searchParams.get('startDate') || new Date().toISOString().split('T')[0],
-      checkOut: searchParams.get('endDate') || new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      checkOut:
+        searchParams.get('endDate') || new Date(Date.now() + 86400000).toISOString().split('T')[0],
       amenities: room.amenities?.join(',') || '',
       starCategory: room.starCategory.toString(),
       neighborhood: room.neighborhood || '',
@@ -188,9 +203,7 @@ const HotelList: React.FC<HotelListProps> = ({
 
   if (error) {
     return (
-      <div className="flex-1 flex items-center justify-center text-red-600">
-        Error: {error}
-      </div>
+      <div className="flex-1 flex items-center justify-center text-red-600">Error: {error}</div>
     );
   }
 
@@ -198,7 +211,7 @@ const HotelList: React.FC<HotelListProps> = ({
   const totalPages = Math.ceil(filteredAndSortedRooms.length / itemsPerPage);
   const paginatedRooms = filteredAndSortedRooms.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const handlePageChange = (pageNumber: number) => {
@@ -213,7 +226,7 @@ const HotelList: React.FC<HotelListProps> = ({
         <div className="relative">
           <select
             value={sortOption}
-            onChange={(e) => onSortChange(e.target.value)}
+            onChange={e => onSortChange(e.target.value)}
             className="appearance-none bg-white border border-gray-300 rounded px-4 py-2 pr-8"
           >
             <option>Recommended</option>
@@ -231,7 +244,7 @@ const HotelList: React.FC<HotelListProps> = ({
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <path d="m6 9 6 6 6-6"/>
+            <path d="m6 9 6 6 6-6" />
           </svg>
         </div>
       </div>
@@ -239,7 +252,10 @@ const HotelList: React.FC<HotelListProps> = ({
       {/* Room Cards */}
       <div className="space-y-6">
         {paginatedRooms.map((room, index) => (
-          <div key={`${room.hotelId}-${index}`} className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+          <div
+            key={`${room.hotelId}-${index}`}
+            className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
+          >
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex justify-between">
@@ -255,9 +271,7 @@ const HotelList: React.FC<HotelListProps> = ({
                       <StarDisplay count={room.starCategory} />
                     </div>
                     <div className="text-sm text-gray-600 mt-1">Capacity: {room.capacity}</div>
-                    {room.view && (
-                      <div className="text-sm text-gray-600">View: {room.view}</div>
-                    )}
+                    {room.view && <div className="text-sm text-gray-600">View: {room.view}</div>}
                   </div>
                   <button className="p-2">
                     <Heart className="text-gray-400 hover:text-red-500 transition-colors" />
@@ -278,17 +292,15 @@ const HotelList: React.FC<HotelListProps> = ({
                     <div className="text-2xl font-bold text-purple-700">
                       ${formatPrice(room.price)}
                     </div>
-                    <div className="text-sm text-gray-600">
-                      /night
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      includes taxes & fees
-                    </div>
-                    <button 
+                    <div className="text-sm text-gray-600">/night</div>
+                    <div className="text-xs text-gray-500">includes taxes & fees</div>
+                    <button
                       className={`mt-2 px-4 py-2 rounded-full text-sm font-medium transition-colors
-                        ${room.isAvailable 
-                          ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' 
-                          : 'bg-gray-100 text-gray-500 cursor-not-allowed'}`}
+                        ${
+                          room.isAvailable
+                            ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                            : 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                        }`}
                       disabled={!room.isAvailable}
                       onClick={() => handleBookNow(room)}
                     >
@@ -316,11 +328,11 @@ const HotelList: React.FC<HotelListProps> = ({
           >
             Previous
           </button>
-          
+
           {(() => {
             const pages = [];
             const maxVisiblePages = 5;
-            
+
             if (totalPages <= maxVisiblePages) {
               // Show all pages if total is less than max visible
               for (let i = 1; i <= totalPages; i++) {
@@ -335,7 +347,7 @@ const HotelList: React.FC<HotelListProps> = ({
                     }`}
                   >
                     {i}
-                  </button>
+                  </button>,
                 );
               }
             } else {
@@ -351,19 +363,23 @@ const HotelList: React.FC<HotelListProps> = ({
                   }`}
                 >
                   1
-                </button>
+                </button>,
               );
 
               if (currentPage > 3) {
                 pages.push(
                   <span key="start-ellipsis" className="px-2">
                     ...
-                  </span>
+                  </span>,
                 );
               }
 
               // Show pages around current page
-              for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+              for (
+                let i = Math.max(2, currentPage - 1);
+                i <= Math.min(totalPages - 1, currentPage + 1);
+                i++
+              ) {
                 pages.push(
                   <button
                     key={i}
@@ -375,7 +391,7 @@ const HotelList: React.FC<HotelListProps> = ({
                     }`}
                   >
                     {i}
-                  </button>
+                  </button>,
                 );
               }
 
@@ -383,7 +399,7 @@ const HotelList: React.FC<HotelListProps> = ({
                 pages.push(
                   <span key="end-ellipsis" className="px-2">
                     ...
-                  </span>
+                  </span>,
                 );
               }
 
@@ -399,13 +415,13 @@ const HotelList: React.FC<HotelListProps> = ({
                   }`}
                 >
                   {totalPages}
-                </button>
+                </button>,
               );
             }
 
             return pages;
           })()}
-          
+
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
@@ -423,4 +439,4 @@ const HotelList: React.FC<HotelListProps> = ({
   );
 };
 
-export default HotelList; 
+export default HotelList;

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import { Search, ChevronDown } from "lucide-react";
-import SimpleDatePicker from "../components/datepicker";
-import Header from "../components/header";
-import Footer from "../components/footer";
-import HotelList from "../components/HotelList";
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Search, ChevronDown } from 'lucide-react';
+import SimpleDatePicker from '../components/datepicker';
+import Header from '../components/header';
+import Footer from '../components/footer';
+import HotelList from '../components/HotelList';
 
 interface DateRange {
   startDate: string;
@@ -33,14 +33,15 @@ interface FilterState {
   hotelChain: string;
 }
 
-export default function HotelBookingPage( { searchParams, }: { searchParams: { [key: string]: string | string[] |  undefined }; }): React.ReactElement {
+export default function HotelBookingPage(): React.ReactElement {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [destinations, setDestinations] = useState([]);
   const [hotels, setHotels] = useState([]);
   const [roomCapacity, setRoomCapacity] = useState([]);
   const [amenities, setAmenities] = useState([]);
   const [viewTypes, setViewTypes] = useState([]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchNeighborhoods();
@@ -48,28 +49,29 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
     fetchRoomCapacity();
     fetchAmenities();
     fetchViewTypes();
-    console.log(error)
+    console.log(error);
   }, []);
 
   // Update the form data effect to also update filter state
   useEffect(() => {
-    const startDate = searchParams.startDate as string | undefined;
-    const endDate = searchParams.endDate as string | undefined;
-    const hotel = searchParams.hotel as string | undefined;
-    const destination = searchParams.destination as string | undefined;
-    const capacity = searchParams.capacity as string | undefined;
+    const startDate = searchParams.get('startDate') || undefined;
+    const endDate = searchParams.get('endDate') || undefined;
+    const hotel = searchParams.get('hotel') || undefined;
+    const destination = searchParams.get('destination') || undefined;
+    const capacity = searchParams.get('capacity') || undefined;
 
     if (startDate && endDate) {
       setFormData(prev => ({
         ...prev,
         dates: {
           startDate,
-          endDate
-        }
+          endDate,
+        },
       }));
     }
     if (hotel) {
       setFormData(prev => ({ ...prev, hotel }));
+      setFilterState(prev => ({ ...prev, hotelChain: hotel }));
     }
     if (destination) {
       setFormData(prev => ({ ...prev, destination }));
@@ -83,12 +85,12 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
 
   const fetchNeighborhoods = async () => {
     try {
-      const response = await fetch("/api/destinations");
+      const response = await fetch('/api/destinations');
       if (response.ok) {
         const data = await response.json();
         setDestinations(data);
       } else {
-        throw new Error("Failed to fetch destinations");
+        throw new Error('Failed to fetch destinations');
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -102,12 +104,12 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
 
   const fetchHotelChainID = async () => {
     try {
-      const response = await fetch("/api/hotel_chain");
+      const response = await fetch('/api/hotel_chain');
       if (response.ok) {
         const data = await response.json();
         setHotels(data);
       } else {
-        throw new Error("Failed to fetch hotel ids");
+        throw new Error('Failed to fetch hotel ids');
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -121,12 +123,12 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
 
   const fetchRoomCapacity = async () => {
     try {
-      const response = await fetch("/api/room_capacity");
+      const response = await fetch('/api/room_capacity');
       if (response.ok) {
         const data = await response.json();
         setRoomCapacity(data);
       } else {
-        throw new Error("Failed to fetch rooms");
+        throw new Error('Failed to fetch rooms');
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -140,12 +142,12 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
 
   const fetchAmenities = async () => {
     try {
-      const response = await fetch("/api/room_amenity");
+      const response = await fetch('/api/room_amenity');
       if (response.ok) {
         const data = await response.json();
         setAmenities(data);
       } else {
-        throw new Error("Failed to fetch amenities");
+        throw new Error('Failed to fetch amenities');
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -159,12 +161,12 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
 
   const fetchViewTypes = async () => {
     try {
-      const response = await fetch("/api/rooms");
+      const response = await fetch('/api/rooms');
       if (response.ok) {
         const data = await response.json();
         setViewTypes(data.viewTypes);
       } else {
-        throw new Error("Failed to fetch view types");
+        throw new Error('Failed to fetch view types');
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -178,15 +180,15 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
 
   const [formData, setFormData] = useState<SearchFormData>({
     dates: null,
-    hotel: "",
-    destination: "",
-    capacity: "",
+    hotel: '',
+    destination: '',
+    capacity: '',
   });
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const handleDateSelect = (dateRange: DateRange): void => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       dates: dateRange,
     }));
@@ -201,11 +203,11 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
   };
 
   const toggleDateDropdown = (): void => {
-    toggleDropdown("dates");
+    toggleDropdown('dates');
   };
 
-  const selectOption = (name: "hotel" | "destination" | "capacity", value: string): void => {
-    setFormData((prev) => ({
+  const selectOption = (name: 'hotel' | 'destination' | 'capacity', value: string): void => {
+    setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
@@ -226,11 +228,11 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     const query = new URLSearchParams({
-      startDate: formData.dates?.startDate || "",
-      endDate: formData.dates?.endDate || "",
-      hotel: formData.hotel || "",
-      destination: formData.destination || "",
-      capacity: formData.capacity || "",
+      startDate: formData.dates?.startDate || '',
+      endDate: formData.dates?.endDate || '',
+      hotel: formData.hotel || '',
+      destination: formData.destination || '',
+      capacity: formData.capacity || '',
     }).toString();
 
     router.push(`/booking?${query}`);
@@ -239,17 +241,17 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
   const [filterState, setFilterState] = useState<FilterState>({
     starRating: [],
     priceRange: {
-      min: "",
-      max: "",
+      min: '',
+      max: '',
     },
     amenities: [],
     roomCapacity: [],
     viewType: [],
-    destination: "",
-    hotelChain: "",
+    destination: '',
+    hotelChain: '',
   });
 
-  const [sortOption, setSortOption] = useState("Recommended");
+  const [sortOption, setSortOption] = useState('Recommended');
 
   const handleSortChange = (value: string) => {
     setSortOption(value);
@@ -265,55 +267,50 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
             {/* Desktop layout */}
             <div className="hidden md:flex bg-white rounded-2xl shadow-lg p-3 items-center">
               <div className="flex-1 px-3">
-                <label
-                  htmlFor="dates"
-                  className="block text-xs text-gray-500 mb-1"
-                >
+                <label htmlFor="dates" className="block text-xs text-gray-500 mb-1">
                   DATES
                 </label>
                 <div
                   className="flex items-center justify-between cursor-pointer"
                   onClick={() => toggleDateDropdown()}
                 >
-                  <SimpleDatePicker 
-                    onDateChange={handleDateSelect} 
+                  <SimpleDatePicker
+                    onDateChange={handleDateSelect}
                     initialDateRange={formData.dates || undefined}
                   />
                   <ChevronDown
                     size={16}
                     className={`ml-2 transition-transform duration-200 ${
-                      openDropdown === "dates" ? "transform rotate-180" : ""
+                      openDropdown === 'dates' ? 'transform rotate-180' : ''
                     }`}
                   />
                 </div>
               </div>
 
               <div className="flex-1 px-3 border-l border-gray-200">
-                <label className="block text-xs text-gray-500 mb-1">
-                  HOTEL CHAIN
-                </label>
+                <label className="block text-xs text-gray-500 mb-1">HOTEL CHAIN</label>
                 <div className="relative">
                   <button
                     type="button"
                     className="w-full text-left text-sm flex items-center justify-between focus:outline-none cursor-pointer"
-                    onClick={() => toggleDropdown("hotel")}
+                    onClick={() => toggleDropdown('hotel')}
                   >
-                    <span>{formData.hotel || "Select hotel"}</span>
+                    <span>{formData.hotel || 'Select hotel'}</span>
                     <ChevronDown
                       size={16}
                       className={`ml-2 transition-transform duration-200 ${
-                        openDropdown === "hotel" ? "transform rotate-180" : ""
+                        openDropdown === 'hotel' ? 'transform rotate-180' : ''
                       }`}
                     />
                   </button>
 
-                  {openDropdown === "hotel" && (
+                  {openDropdown === 'hotel' && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                      {hotels.map((hotel) => (
+                      {hotels.map(hotel => (
                         <div
                           key={hotel}
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                          onClick={() => selectOption("hotel", hotel)}
+                          onClick={() => selectOption('hotel', hotel)}
                         >
                           {hotel}
                         </div>
@@ -324,35 +321,29 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
               </div>
 
               <div className="flex-1 px-3 border-l border-gray-200">
-                <label className="block text-xs text-gray-500 mb-1">
-                  NEIGHBOURHOOD
-                </label>
+                <label className="block text-xs text-gray-500 mb-1">NEIGHBOURHOOD</label>
                 <div className="relative">
                   <button
                     type="button"
                     className="w-full text-left text-sm flex items-center justify-between focus:outline-none cursor-pointer"
-                    onClick={() => toggleDropdown("destination")}
+                    onClick={() => toggleDropdown('destination')}
                   >
-                    <span>{formData.destination || "Where to?"}</span>
+                    <span>{formData.destination || 'Where to?'}</span>
                     <ChevronDown
                       size={16}
                       className={`ml-2 transition-transform duration-200 ${
-                        openDropdown === "destination"
-                          ? "transform rotate-180"
-                          : ""
+                        openDropdown === 'destination' ? 'transform rotate-180' : ''
                       }`}
                     />
                   </button>
 
-                  {openDropdown === "destination" && (
+                  {openDropdown === 'destination' && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                      {destinations.map((destination) => (
+                      {destinations.map(destination => (
                         <div
                           key={destination}
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                          onClick={() =>
-                            selectOption("destination", destination)
-                          }
+                          onClick={() => selectOption('destination', destination)}
                         >
                           {destination}
                         </div>
@@ -363,31 +354,29 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
               </div>
 
               <div className="flex-1 px-3 border-l border-gray-200">
-                <label className="block text-xs text-gray-500 mb-1">
-                  CAPACITY
-                </label>
+                <label className="block text-xs text-gray-500 mb-1">CAPACITY</label>
                 <div className="relative">
                   <button
                     type="button"
                     className="w-full text-left text-sm flex items-center justify-between focus:outline-none cursor-pointer"
-                    onClick={() => toggleDropdown("capacity")}
+                    onClick={() => toggleDropdown('capacity')}
                   >
-                    <span>{formData.capacity || "Select Capacity"}</span>
+                    <span>{formData.capacity || 'Select Capacity'}</span>
                     <ChevronDown
                       size={16}
                       className={`ml-2 transition-transform duration-200 ${
-                        openDropdown === "capacity" ? "transform rotate-180" : ""
+                        openDropdown === 'capacity' ? 'transform rotate-180' : ''
                       }`}
                     />
                   </button>
 
-                  {openDropdown === "capacity" && (
+                  {openDropdown === 'capacity' && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                      {roomCapacity.map((capacity) => (
+                      {roomCapacity.map(capacity => (
                         <div
                           key={capacity}
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                          onClick={() => selectOption("capacity", capacity)}
+                          onClick={() => selectOption('capacity', capacity)}
                         >
                           {capacity}
                         </div>
@@ -410,56 +399,48 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
             <div className="md:hidden bg-white rounded-lg shadow-lg">
               <div className="p-4">
                 <div className="mb-4">
-                  <label className="block text-xs text-gray-500 mb-1">
-                    DATES
-                  </label>
+                  <label className="block text-xs text-gray-500 mb-1">DATES</label>
                   <div
                     className="flex items-center justify-between border border-gray-200 rounded px-3 py-2 cursor-pointer"
-                    onClick={() => toggleDropdown("dates-mobile")}
+                    onClick={() => toggleDropdown('dates-mobile')}
                   >
-                    <SimpleDatePicker 
-                      onDateChange={handleDateSelect} 
+                    <SimpleDatePicker
+                      onDateChange={handleDateSelect}
                       initialDateRange={formData.dates || undefined}
                     />
                     <ChevronDown
                       size={16}
                       className={`ml-2 transition-transform duration-200 ${
-                        openDropdown === "dates-mobile"
-                          ? "transform rotate-180"
-                          : ""
+                        openDropdown === 'dates-mobile' ? 'transform rotate-180' : ''
                       }`}
                     />
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-xs text-gray-500 mb-1">
-                    HOTEL CHAIN
-                  </label>
+                  <label className="block text-xs text-gray-500 mb-1">HOTEL CHAIN</label>
                   <div className="relative">
                     <button
                       type="button"
                       className="w-full text-left text-sm py-2 border border-gray-200 rounded px-3 flex items-center justify-between focus:outline-none"
-                      onClick={() => toggleDropdown("hotel-mobile")}
+                      onClick={() => toggleDropdown('hotel-mobile')}
                     >
-                      <span>{formData.hotel || "Select hotel"}</span>
+                      <span>{formData.hotel || 'Select hotel'}</span>
                       <ChevronDown
                         size={16}
                         className={`ml-2 transition-transform duration-200 ${
-                          openDropdown === "hotel-mobile"
-                            ? "transform rotate-180"
-                            : ""
+                          openDropdown === 'hotel-mobile' ? 'transform rotate-180' : ''
                         }`}
                       />
                     </button>
 
-                    {openDropdown === "hotel-mobile" && (
+                    {openDropdown === 'hotel-mobile' && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                        {hotels.map((hotel) => (
+                        {hotels.map(hotel => (
                           <div
                             key={hotel}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                            onClick={() => selectOption("hotel", hotel)}
+                            onClick={() => selectOption('hotel', hotel)}
                           >
                             {hotel}
                           </div>
@@ -470,35 +451,29 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-xs text-gray-500 mb-1">
-                    DESTINATION
-                  </label>
+                  <label className="block text-xs text-gray-500 mb-1">DESTINATION</label>
                   <div className="relative">
                     <button
                       type="button"
                       className="w-full text-left text-sm py-2 border border-gray-200 rounded px-3 flex items-center justify-between focus:outline-none"
-                      onClick={() => toggleDropdown("destination-mobile")}
+                      onClick={() => toggleDropdown('destination-mobile')}
                     >
-                      <span>{formData.destination || "Where to?"}</span>
+                      <span>{formData.destination || 'Where to?'}</span>
                       <ChevronDown
                         size={16}
                         className={`ml-2 transition-transform duration-200 ${
-                          openDropdown === "destination-mobile"
-                            ? "transform rotate-180"
-                            : ""
+                          openDropdown === 'destination-mobile' ? 'transform rotate-180' : ''
                         }`}
                       />
                     </button>
 
-                    {openDropdown === "destination-mobile" && (
+                    {openDropdown === 'destination-mobile' && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                        {destinations.map((destination) => (
+                        {destinations.map(destination => (
                           <div
                             key={destination}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                            onClick={() =>
-                              selectOption("destination", destination)
-                            }
+                            onClick={() => selectOption('destination', destination)}
                           >
                             {destination}
                           </div>
@@ -509,33 +484,29 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-xs text-gray-500 mb-1">
-                    CAPACITY
-                  </label>
+                  <label className="block text-xs text-gray-500 mb-1">CAPACITY</label>
                   <div className="relative">
                     <button
                       type="button"
                       className="w-full text-left text-sm py-2 border border-gray-200 rounded px-3 flex items-center justify-between focus:outline-none"
-                      onClick={() => toggleDropdown("capacity-mobile")}
+                      onClick={() => toggleDropdown('capacity-mobile')}
                     >
-                      <span>{formData.capacity || "Select Capacity"}</span>
+                      <span>{formData.capacity || 'Select Capacity'}</span>
                       <ChevronDown
                         size={16}
                         className={`ml-2 transition-transform duration-200 ${
-                          openDropdown === "capacity-mobile"
-                            ? "transform rotate-180"
-                            : ""
+                          openDropdown === 'capacity-mobile' ? 'transform rotate-180' : ''
                         }`}
                       />
                     </button>
 
-                    {openDropdown === "capacity-mobile" && (
+                    {openDropdown === 'capacity-mobile' && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg py-1 z-10 max-h-48 overflow-y-auto">
-                        {roomCapacity.map((capacity) => (
+                        {roomCapacity.map(capacity => (
                           <div
                             key={capacity}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                            onClick={() => selectOption("capacity", capacity)}
+                            onClick={() => selectOption('capacity', capacity)}
                           >
                             {capacity}
                           </div>
@@ -576,17 +547,17 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
             <div className="mb-6">
               <h3 className="text-lg font-medium mb-3">Star Rating</h3>
               <div className="flex flex-wrap gap-2">
-                {[1, 2, 3, 4, 5].map((stars) => (
+                {[1, 2, 3, 4, 5].map(stars => (
                   <button
                     key={stars}
                     className={`px-4 py-2 border rounded ${
                       filterState.starRating.includes(stars)
-                        ? "bg-purple-500 text-white"
-                        : "border-gray-300"
+                        ? 'bg-purple-500 text-white'
+                        : 'border-gray-300'
                     }`}
                     onClick={() => {
                       const newStarRating = filterState.starRating.includes(stars)
-                        ? filterState.starRating.filter((s) => s !== stars)
+                        ? filterState.starRating.filter(s => s !== stars)
                         : [...filterState.starRating, stars];
                       setFilterState({ ...filterState, starRating: newStarRating });
                     }}
@@ -609,7 +580,7 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
                       placeholder="Min"
                       className="w-full pl-7 p-2 border border-gray-300 rounded"
                       value={filterState.priceRange.min}
-                      onChange={(e) =>
+                      onChange={e =>
                         setFilterState({
                           ...filterState,
                           priceRange: { ...filterState.priceRange, min: e.target.value },
@@ -626,7 +597,7 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
                       placeholder="Max"
                       className="w-full pl-7 p-2 border border-gray-300 rounded"
                       value={filterState.priceRange.max}
-                      onChange={(e) =>
+                      onChange={e =>
                         setFilterState({
                           ...filterState,
                           priceRange: { ...filterState.priceRange, max: e.target.value },
@@ -642,7 +613,7 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
             <div className="mb-6">
               <h3 className="text-lg font-medium mb-3">Amenities</h3>
               <div className="space-y-2">
-                {amenities.map((amenity) => (
+                {amenities.map(amenity => (
                   <label key={amenity} className="flex items-center">
                     <input
                       type="checkbox"
@@ -650,7 +621,7 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
                       checked={filterState.amenities.includes(amenity)}
                       onChange={() => {
                         const newAmenities = filterState.amenities.includes(amenity)
-                          ? filterState.amenities.filter((a) => a !== amenity)
+                          ? filterState.amenities.filter(a => a !== amenity)
                           : [...filterState.amenities, amenity];
                         setFilterState({ ...filterState, amenities: newAmenities });
                       }}
@@ -665,7 +636,7 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
             <div className="mb-6">
               <h3 className="text-lg font-medium mb-3">Room Capacity</h3>
               <div className="space-y-2">
-                {roomCapacity.map((capacity) => (
+                {roomCapacity.map(capacity => (
                   <label key={capacity} className="flex items-center">
                     <input
                       type="checkbox"
@@ -673,7 +644,7 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
                       checked={filterState.roomCapacity.includes(capacity)}
                       onChange={() => {
                         const newCapacity = filterState.roomCapacity.includes(capacity)
-                          ? filterState.roomCapacity.filter((c) => c !== capacity)
+                          ? filterState.roomCapacity.filter(c => c !== capacity)
                           : [...filterState.roomCapacity, capacity];
                         setFilterState({ ...filterState, roomCapacity: newCapacity });
                       }}
@@ -688,7 +659,7 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
             <div className="mb-6">
               <h3 className="text-lg font-medium mb-3">View Type</h3>
               <div className="space-y-2">
-                {viewTypes.map((view) => (
+                {viewTypes.map(view => (
                   <label key={view} className="flex items-center">
                     <input
                       type="checkbox"
@@ -696,7 +667,7 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
                       checked={filterState.viewType.includes(view)}
                       onChange={() => {
                         const newViewTypes = filterState.viewType.includes(view)
-                          ? filterState.viewType.filter((v) => v !== view)
+                          ? filterState.viewType.filter(v => v !== view)
                           : [...filterState.viewType, view];
                         setFilterState({ ...filterState, viewType: newViewTypes });
                       }}
@@ -710,11 +681,11 @@ export default function HotelBookingPage( { searchParams, }: { searchParams: { [
 
           {/* Hotels List Section */}
           <Suspense fallback={<div>Loading hotels...</div>}>
-          <HotelList
-            sortOption={sortOption}
-            onSortChange={handleSortChange}
-            filterState={filterState}
-          />
+            <HotelList
+              sortOption={sortOption}
+              onSortChange={handleSortChange}
+              filterState={filterState}
+            />
           </Suspense>
         </div>
       </div>
