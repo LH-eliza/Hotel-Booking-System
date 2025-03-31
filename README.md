@@ -18,7 +18,7 @@ This is a **hotel management system** that allows users to book, rent, and manag
 - **TypeScript** and **JavaScript**
 - **Libraries**: 
   - `tailwindcss` for front-end css
-  - Firebase for User Authentication
+  - 'Firebase' for User Authentication
   - `dotenv` for environment variables
   - `pg` for PostgreSQL database integration
 
