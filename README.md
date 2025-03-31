@@ -80,5 +80,4 @@ npm run dev
 ---
 
 ## 🎥 Video Implementation
-![Thumbnail](https://github.com/user-attachments/assets/5445fc6a-5915-438d-8afe-1cc46c6c6055)
-- ▶️
+[![Thumbnail](https://github.com/user-attachments/assets/5445fc6a-5915-438d-8afe-1cc46c6c6055)](https://youtu.be/BhBjILrItuY)
