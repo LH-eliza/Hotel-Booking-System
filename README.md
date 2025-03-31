@@ -1,4 +1,4 @@
-### 📝 **README.md – Hotel Management System, CSI2132**
+### 📝 **Hotel Management System, CSI2132**
 
 ---
 
@@ -78,3 +78,7 @@ npm run dev
 - 📈 **Analytics Dashboard:** Display room occupancy, revenue, and customer stats.
 
 ---
+
+## ** 🎥 Video Implementation** 
+![Thumbnail](https://github.com/user-attachments/assets/5445fc6a-5915-438d-8afe-1cc46c6c6055)
+- ▶️
